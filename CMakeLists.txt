@@ -14,8 +14,13 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 set(PROJECT_CODE
     src/main.cpp
-    )
+    src/sources.cpp)
 
-include_directories(include)
+set(CURL_LIBRARY "-lcurl")
+find_package(CURL REQUIRED)
+
+include_directories(include ${CURL_INCLUDE_DIR})
 
 add_executable(run ${PROJECT_CODE})
+
+target_link_libraries(run ${CURL_LIBRARIES})
