@@ -6,7 +6,7 @@
 class AbstractSource {
 public:
     char getNextChar();
-    char getLastChar();
+    char getLastChar() const;
 
 protected:
     AbstractSource();

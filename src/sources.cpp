@@ -10,7 +10,7 @@ char AbstractSource::getNextChar() {
     return getLastChar();
 }
 
-char AbstractSource::getLastChar() {
+char AbstractSource::getLastChar() const {
     if (position_ >= 0 && (unsigned int)position_ < buffer_.length()) {
         return buffer_[position_];
     }
