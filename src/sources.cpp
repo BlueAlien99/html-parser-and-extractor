@@ -5,25 +5,32 @@
 #include <fstream>
 #include <string>
 
-SourceFromString::SourceFromString(std::string str) : str_(str), position_(0) {}
+char AbstractSource::getNextChar() {
+    ++position_;
+    return getLastChar();
+}
 
-char SourceFromString::getNextChar() {
-    if (position_ < str_.length()) {
-        return str_[position_++];
+char AbstractSource::getLastChar() {
+    if (position_ >= 0 && (unsigned int)position_ < buffer_.length()) {
+        return buffer_[position_];
     }
     return '\0';
 }
 
-SourceFromFile::SourceFromFile(std::string path) { file_.open(path); }
+AbstractSource::AbstractSource() : position_(-1) {}
 
-SourceFromFile::~SourceFromFile() { file_.close(); }
+SourceFromString::SourceFromString(std::string str) { buffer_ = str; }
 
-char SourceFromFile::getNextChar() {
-    char c;
-    if (file_.get(c)) {
-        return c;
+SourceFromFile::SourceFromFile(std::string path) {
+    std::ifstream file(path);
+    if (file.is_open()) {
+        file.seekg(0, std::ios::end);
+        size_t size = file.tellg();
+        buffer_ = std::string(size, '\0');
+        file.seekg(0);
+        file.read(&buffer_[0], size);
     }
-    return '\0';
+    file.close();
 }
 
 size_t SourceFromUrl::writeCallback(char *content, size_t size, size_t nmemb, void *userdata) {
@@ -33,7 +40,7 @@ size_t SourceFromUrl::writeCallback(char *content, size_t size, size_t nmemb, vo
     return size * nmemb;
 }
 
-SourceFromUrl::SourceFromUrl(std::string url) : position_(0) {
+SourceFromUrl::SourceFromUrl(std::string url) {
     CURL *curl;
     CURLcode res;
 
@@ -45,11 +52,4 @@ SourceFromUrl::SourceFromUrl(std::string url) : position_(0) {
         res = curl_easy_perform(curl);
         curl_easy_cleanup(curl);
     }
-}
-
-char SourceFromUrl::getNextChar() {
-    if (position_ < buffer_.length()) {
-        return buffer_[position_++];
-    }
-    return '\0';
 }
