@@ -23,6 +23,8 @@ include_directories(include ${CURL_INCLUDE_DIR})
 
 add_executable(run src/main.cpp ${PROJECT_CODE})
 add_executable(lexer_html tests/lexer_html.cpp ${PROJECT_CODE})
+add_executable(lexer_conf tests/lexer_conf.cpp ${PROJECT_CODE})
 
 target_link_libraries(run ${CURL_LIBRARIES})
 target_link_libraries(lexer_html ${CURL_LIBRARIES})
+target_link_libraries(lexer_conf ${CURL_LIBRARIES})

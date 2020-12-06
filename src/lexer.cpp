@@ -119,7 +119,59 @@ Token<HtmlToken> Lexer<HtmlToken>::makeToken() {
 
 template <>
 Token<ConfToken> Lexer<ConfToken>::makeToken() {
-    return Token<ConfToken>(ConfToken::UNDEFINED);
+    char c = source_.getNextChar();
+
+    if (c == '\0') {
+        return Token(ConfToken::END_OF_FILE);
+    }
+
+    if (isSpace(c)) {
+        std::string str = "";
+        do {
+            str += c;
+            c = source_.getNextChar();
+        } while (isSpace(c));
+        source_.rewind();
+        return Token(ConfToken::SPACE, str);
+    }
+
+    if (isAlphanum(c)) {
+        std::string str = "";
+        do {
+            str += c;
+            c = source_.getNextChar();
+        } while (isAlphanum(c));
+        source_.rewind();
+        return Token(ConfToken::STRING, str);
+    }
+
+    if (c == '(') return Token(ConfToken::START_RANGE, "(");
+
+    if (c == ')') return Token(ConfToken::END_RANGE, ")");
+
+    if (c == '[') return Token(ConfToken::START_ATTRIBUTE, "[");
+
+    if (c == ']') return Token(ConfToken::END_ATTRIBUTE, "]");
+
+    if (c == '=') return Token(ConfToken::EQUALS, "=");
+
+    if (c == '"') return Token(ConfToken::DOUBLE_QUOTE, "\"");
+
+    if (c == '\'') return Token(ConfToken::SINGLE_QUOTE, "'");
+
+    if (c == ':') return Token(ConfToken::RANGE_SEPARATOR, ":");
+
+    if (c == '-') return Token(ConfToken::DASH, "-");
+
+    if (c == '_') return Token(ConfToken::UNDERSCORE, "_");
+
+    if (c == '.') return Token(ConfToken::CLASS, ".");
+
+    if (c == '#') return Token(ConfToken::ID, "#");
+
+    if (isSymbol(c)) return Token(ConfToken::SYMBOL, std::string(1, c));
+
+    return Token(ConfToken::UNDEFINED);
 }
 
 template class Lexer<HtmlToken>;

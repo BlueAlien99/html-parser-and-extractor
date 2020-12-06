@@ -48,14 +48,15 @@ size_t SourceFromUrl::writeCallback(char *content, size_t size, size_t nmemb, vo
 
 SourceFromUrl::SourceFromUrl(std::string url) {
     CURL *curl;
-    CURLcode res;
+    // CURLcode res;
 
     curl = curl_easy_init();
     if (curl) {
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer_);
-        res = curl_easy_perform(curl);
+        // res = curl_easy_perform(curl);
+        curl_easy_perform(curl);
         curl_easy_cleanup(curl);
     }
 }

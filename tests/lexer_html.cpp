@@ -46,7 +46,7 @@ int main(){
         return -1;
     }
 
-    for(int i = 0; i < expected.size(); ++i){
+    for(unsigned int i = 0; i < expected.size(); ++i){
         if(expected[i] == actual[i].getType()){
             // std::cout<<(int)expected[i]<<" ";
             continue;

@@ -6,7 +6,7 @@ bool isSpace(char c) { return (c == ' ' || c == '\t' || c == '\n' || c == '\f' |
 bool isAlpha(char c) {
     bool uppercase = (c >= 'A' && c <= 'Z');
     bool lowercase = (c >= 'a' && c <= 'z');
-    bool utf8 = (c < 0 || c > 127);
+    bool utf8 = ((signed char)c < 0);
     return (uppercase || lowercase || utf8);
 }
 
