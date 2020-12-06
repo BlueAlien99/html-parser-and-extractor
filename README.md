@@ -17,3 +17,11 @@ make
 `./bin/lexer_html` -- to test html lexer
 
 `./bin/lexer_conf` -- to test configuration string lexer
+
+## Testing
+```
+cmake -DCMAKE_BUILD_TYPE=Debug .
+make
+make coverage
+```
+Then open `coverage/index.html`

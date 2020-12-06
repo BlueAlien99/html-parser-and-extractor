@@ -5,47 +5,53 @@
 #include <fstream>
 #include <string>
 
-char AbstractSource::getNextChar() {
-    ++position_;
-    return getLastChar();
+//
+// AbstractSource
+//
+AbstractSource::AbstractSource() : position_(0) {}
+
+char AbstractSource::advance(int step) {
+    position_ += step;
+    return getChar();
 }
 
-char AbstractSource::getLastChar() const {
-    if (position_ >= 0 && (unsigned int)position_ < buffer_.length()) {
-        return buffer_[position_];
+char AbstractSource::peek(int offset) const { return getChar(offset); }
+
+unsigned int AbstractSource::getPosition() const { return position_; }
+
+//
+// SourceFromString
+//
+SourceFromString::SourceFromString(std::string str) : buffer_(str) {}
+
+char SourceFromString::getChar(int offset) const {
+    unsigned int pos = position_ + offset;
+    if (pos < buffer_.length()) {
+        return buffer_[pos];
     }
     return '\0';
 }
 
-void AbstractSource::setPosition(int pos) { position_ = pos; }
+//
+// SourceFromFile
+//
+SourceFromFile::SourceFromFile(std::string path) { file_.open(path, std::ios::in); }
 
-int AbstractSource::getPosition() const { return position_; }
+SourceFromFile::~SourceFromFile() { file_.close(); }
 
-void AbstractSource::rewind() { --position_; }
-
-AbstractSource::AbstractSource() : position_(-1) {}
-
-SourceFromString::SourceFromString(std::string str) { buffer_ = str; }
-
-SourceFromFile::SourceFromFile(std::string path) {
-    std::ifstream file(path);
-    if (file.is_open()) {
-        file.seekg(0, std::ios::end);
-        size_t size = file.tellg();
-        buffer_ = std::string(size, '\0');
-        file.seekg(0);
-        file.read(&buffer_[0], size);
+char SourceFromFile::getChar(int offset) const {
+    unsigned int pos = position_ + offset;
+    file_.seekg(pos, std::ios::beg);
+    char c = '\0';
+    if (file_.get(c)) {
+        return c;
     }
-    file.close();
+    return '\0';
 }
 
-size_t SourceFromUrl::writeCallback(char *content, size_t size, size_t nmemb, void *userdata) {
-    char *content_ptr = static_cast<char *>(content);
-    std::string *userdata_ptr = static_cast<std::string *>(userdata);
-    userdata_ptr->append(content_ptr, size * nmemb);
-    return size * nmemb;
-}
-
+//
+// SourceFromUrl
+//
 SourceFromUrl::SourceFromUrl(std::string url) {
     CURL *curl;
     // CURLcode res;
@@ -59,4 +65,19 @@ SourceFromUrl::SourceFromUrl(std::string url) {
         curl_easy_perform(curl);
         curl_easy_cleanup(curl);
     }
+}
+
+size_t SourceFromUrl::writeCallback(char *content, size_t size, size_t nmemb, void *userdata) {
+    char *content_ptr = static_cast<char *>(content);
+    std::string *userdata_ptr = static_cast<std::string *>(userdata);
+    userdata_ptr->append(content_ptr, size * nmemb);
+    return size * nmemb;
+}
+
+char SourceFromUrl::getChar(int offset) const {
+    unsigned int pos = position_ + offset;
+    if (pos < buffer_.length()) {
+        return buffer_[pos];
+    }
+    return '\0';
 }

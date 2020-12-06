@@ -19,7 +19,7 @@ int main(){
 
     std::string url = "https://www.onet.pl/";
     SourceFromUrl src3(url);
-    while(char c = src3.getNextChar()){
+    while(char c = src3.advance()){
         std::cout<<c;
     }
     std::cout<<std::endl;
