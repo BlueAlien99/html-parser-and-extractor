@@ -42,7 +42,7 @@ int main(){
         }
     }
 
-    std::cout<<"Lexer works as expected!\n";
+    std::cout<<"\nLexer works as expected!\n";
 
     return 0;
 }
