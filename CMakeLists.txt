@@ -13,7 +13,6 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 set(PROJECT_CODE
-    src/main.cpp
     src/sources.cpp
     src/lexer.cpp)
 
@@ -22,6 +21,8 @@ find_package(CURL REQUIRED)
 
 include_directories(include ${CURL_INCLUDE_DIR})
 
-add_executable(run ${PROJECT_CODE})
+add_executable(run src/main.cpp ${PROJECT_CODE})
+add_executable(lexer_html tests/lexer_html.cpp ${PROJECT_CODE})
 
 target_link_libraries(run ${CURL_LIBRARIES})
+target_link_libraries(lexer_html ${CURL_LIBRARIES})

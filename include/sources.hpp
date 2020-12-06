@@ -7,6 +7,9 @@ class AbstractSource {
 public:
     char getNextChar();
     char getLastChar() const;
+    void setPosition(int pos);
+    int getPosition() const;
+    void rewind();
 
 protected:
     AbstractSource();

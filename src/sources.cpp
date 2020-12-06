@@ -17,6 +17,12 @@ char AbstractSource::getLastChar() const {
     return '\0';
 }
 
+void AbstractSource::setPosition(int pos) { position_ = pos; }
+
+int AbstractSource::getPosition() const { return position_; }
+
+void AbstractSource::rewind() { --position_; }
+
 AbstractSource::AbstractSource() : position_(-1) {}
 
 SourceFromString::SourceFromString(std::string str) { buffer_ = str; }
