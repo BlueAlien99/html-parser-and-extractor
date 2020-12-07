@@ -1,5 +1,6 @@
 #include <cassert>
 #include <iostream>
+#include <variant>
 #include <vector>
 
 #include "sources.hpp"
@@ -19,12 +20,12 @@ int main(){
     std::vector<Token<ConfToken> > actual;
 
     SourceFromFile src("./data/random_conf.txt");
-    Lexer<ConfToken> lexer(src);
-    Token<ConfToken> token = lexer.buildNextToken();
+    ConfLexer lexer(src);
+    Token<ConfToken> token = std::get<Token<ConfToken> >(lexer.buildNextToken());
     while(token.getType() != ConfToken::END_OF_FILE){
         actual.push_back(token);
         std::cout<<token.getContent();
-        token = lexer.buildNextToken();
+        token = std::get<Token<ConfToken> >(lexer.buildNextToken());
     }
 
     if(expected.size() != actual.size()){

@@ -1,30 +1,27 @@
 #include "lexer.hpp"
 
 #include <string>
+#include <variant>
 
 #include "token.hpp"
 
-template <>
-Lexer<HtmlToken>::Lexer(AbstractSource& source)
-    : source_(source), token_(Token(HtmlToken::UNDEFINED, 0)) {}
+AbstractLexer::AbstractLexer(AbstractSource& source, VariantToken token)
+    : source_(source), token_(token) {}
 
-template <>
-Lexer<ConfToken>::Lexer(AbstractSource& source)
-    : source_(source), token_(Token(ConfToken::UNDEFINED, 0)) {}
-
-template <typename Type>
-Token<Type> Lexer<Type>::buildNextToken() {
+VariantToken AbstractLexer::buildNextToken() {
     token_ = buildToken();
     return token_;
 }
 
-template <typename Type>
-Token<Type> Lexer<Type>::getToken() const {
-    return token_;
-}
+VariantToken AbstractLexer::getToken() const { return token_; }
 
-template <>
-Token<HtmlToken> Lexer<HtmlToken>::buildToken() {
+HtmlLexer::HtmlLexer(AbstractSource& source)
+    : AbstractLexer(source, Token(HtmlToken::UNDEFINED, 0)) {}
+
+ConfLexer::ConfLexer(AbstractSource& source)
+    : AbstractLexer(source, Token(ConfToken::UNDEFINED, 0)) {}
+
+VariantToken HtmlLexer::buildToken() {
     char c = source_.getChar();
     unsigned int pos = source_.getPosition();
 
@@ -140,8 +137,7 @@ Token<HtmlToken> Lexer<HtmlToken>::buildToken() {
     return Token(HtmlToken::UNDEFINED, pos);
 }
 
-template <>
-Token<ConfToken> Lexer<ConfToken>::buildToken() {
+VariantToken ConfLexer::buildToken() {
     char c = source_.getChar();
     unsigned int pos = source_.getPosition();
 
@@ -238,6 +234,3 @@ Token<ConfToken> Lexer<ConfToken>::buildToken() {
 
     return Token(ConfToken::UNDEFINED, pos);
 }
-
-template class Lexer<HtmlToken>;
-template class Lexer<ConfToken>;

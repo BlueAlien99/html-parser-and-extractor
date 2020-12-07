@@ -1,5 +1,6 @@
 #include <cassert>
 #include <iostream>
+#include <variant>
 #include <vector>
 
 #include "sources.hpp"
@@ -33,12 +34,12 @@ int main(){
     std::vector<Token<HtmlToken> > actual;
 
     SourceFromFile src("./data/random_file.html");
-    Lexer<HtmlToken> lexer(src);
-    Token<HtmlToken> token = lexer.buildNextToken();
+    HtmlLexer lexer(src);
+    Token<HtmlToken> token = std::get<Token<HtmlToken> >(lexer.buildNextToken());
     while(token.getType() != HtmlToken::END_OF_FILE){
         actual.push_back(token);
         std::cout<<token.getContent();
-        token = lexer.buildNextToken();
+        token = std::get<Token<HtmlToken> >(lexer.buildNextToken());
     }
 
     if(expected.size() != actual.size()){

@@ -1,21 +1,40 @@
 #ifndef LEXER_HPP
 #define LEXER_HPP
 
+#include <variant>
+
 #include "sources.hpp"
 #include "token.hpp"
 
-template <typename Type>
-class Lexer {
-public:
-    Lexer(AbstractSource& source);
-    Token<Type> buildNextToken();
-    Token<Type> getToken() const;
+using VariantToken = std::variant<Token<HtmlToken>, Token<ConfToken> >;
 
-private:
-    Token<Type> buildToken();
+class AbstractLexer {
+public:
+    VariantToken buildNextToken();
+    VariantToken getToken() const;
+
+protected:
+    AbstractLexer(AbstractSource& source, VariantToken token);
+    virtual VariantToken buildToken() = 0;
 
     AbstractSource& source_;
-    Token<Type> token_;
+    VariantToken token_;
+};
+
+class HtmlLexer : public AbstractLexer {
+public:
+    HtmlLexer(AbstractSource& source);
+
+private:
+    VariantToken buildToken();
+};
+
+class ConfLexer : public AbstractLexer {
+public:
+    ConfLexer(AbstractSource& source);
+
+private:
+    VariantToken buildToken();
 };
 
 #endif
