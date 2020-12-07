@@ -1,4 +1,6 @@
-p#interesting-topic
+p#interesting_topic
+
 span.hl
 .foo.bar[data-item-id="p2370hd"]
 p(5)(7:-2)
+table[at='@']

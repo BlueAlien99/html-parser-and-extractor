@@ -39,7 +39,8 @@ int main(){
     while(token.getType() != HtmlToken::END_OF_FILE){
         actual.push_back(token);
         std::cout<<token.getContent();
-        token = std::get<Token<HtmlToken> >(lexer.buildNextToken());
+        lexer.buildNextToken();
+        token = std::get<Token<HtmlToken> >(lexer.getToken());
     }
 
     if(expected.size() != actual.size()){

@@ -34,7 +34,17 @@ int main() {
         sff.advance();
     }
     assert((file_end - file_beg) == sff.getPosition());
+    sff.advance(2);
+    assert(sff.getChar() == '\0');
     file.close();
+    std::cout << "Done!\n";
+
+
+
+    std::cout << "Testing SourceFromFile (non-existent)... ";
+    SourceFromFile sff2("./data/doesnt_exist.txt");
+    assert('\0' == sff2.getChar());
+    assert('\0' == sff2.advance());
     std::cout << "Done!\n";
 
 
@@ -57,6 +67,14 @@ int main() {
     }
     assert(html_beg == "<!DOCTYPE html>");
     assert(html_end == "</html>");
+    std::cout << "Done!\n";
+
+
+
+    std::cout << "Testing SourceFromUrl (non-existent)... ";
+    SourceFromUrl sfu2("https://this-site-doesnt-exist/");
+    assert('\0' == sfu2.getChar());
+    assert('\0' == sfu2.advance());
     std::cout << "Done!\n";
 
 

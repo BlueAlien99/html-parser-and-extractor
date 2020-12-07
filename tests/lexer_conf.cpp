@@ -11,10 +11,11 @@ int main(){
     using CT = ConfToken;
 
     std::vector<ConfToken> expected = { 
-        CT::STRING, CT::ID, CT::STRING, CT::DASH, CT::STRING, CT::SPACE,
+        CT::STRING, CT::ID, CT::STRING, CT::UNDERSCORE, CT::STRING, CT::SPACE,
         CT::STRING, CT::CLASS, CT::STRING, CT::SPACE,
         CT::CLASS, CT::STRING, CT::CLASS, CT::STRING, CT::START_ATTRIBUTE, CT::STRING, CT::DASH, CT::STRING, CT::DASH, CT::STRING, CT::EQUALS, CT::DOUBLE_QUOTE, CT::STRING, CT::DOUBLE_QUOTE, CT::END_ATTRIBUTE, CT::SPACE,
-        CT::STRING, CT::START_RANGE, CT::STRING, CT::END_RANGE, CT::START_RANGE, CT::STRING, CT::RANGE_SEPARATOR, CT::DASH, CT::STRING, CT::END_RANGE, CT::SPACE
+        CT::STRING, CT::START_RANGE, CT::STRING, CT::END_RANGE, CT::START_RANGE, CT::STRING, CT::RANGE_SEPARATOR, CT::DASH, CT::STRING, CT::END_RANGE, CT::SPACE,
+        CT::STRING, CT::START_ATTRIBUTE, CT::STRING, CT::EQUALS, CT::SINGLE_QUOTE, CT::SYMBOL, CT::SINGLE_QUOTE, CT::END_ATTRIBUTE, CT::SPACE
      };
 
     std::vector<Token<ConfToken> > actual;
@@ -25,7 +26,8 @@ int main(){
     while(token.getType() != ConfToken::END_OF_FILE){
         actual.push_back(token);
         std::cout<<token.getContent();
-        token = std::get<Token<ConfToken> >(lexer.buildNextToken());
+        lexer.buildNextToken();
+        token = std::get<Token<ConfToken> >(lexer.getToken());
     }
 
     if(expected.size() != actual.size()){
