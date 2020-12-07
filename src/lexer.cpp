@@ -7,11 +7,11 @@
 
 template <>
 Lexer<HtmlToken>::Lexer(AbstractSource& source)
-    : source_(source), token_(Token(HtmlToken::UNDEFINED)) {}
+    : source_(source), token_(Token(HtmlToken::UNDEFINED, 0)) {}
 
 template <>
 Lexer<ConfToken>::Lexer(AbstractSource& source)
-    : source_(source), token_(Token(ConfToken::UNDEFINED)) {}
+    : source_(source), token_(Token(ConfToken::UNDEFINED, 0)) {}
 
 template <typename Type>
 Token<Type> Lexer<Type>::getNextToken() {
@@ -27,29 +27,30 @@ Token<Type> Lexer<Type>::getLastToken() const {
 template <>
 Token<HtmlToken> Lexer<HtmlToken>::makeToken() {
     char c = source_.getChar();
+    unsigned int pos = source_.getPosition();
 
     if (c == '\0') {
-        return Token(HtmlToken::END_OF_FILE);
+        return Token(HtmlToken::END_OF_FILE, pos);
     }
 
     if (isSpace(c)) {
         std::string str(1, c);
         source_.advance();
-        while(isSpace(source_.getChar())){
+        while (isSpace(source_.getChar())) {
             str += source_.getChar();
             source_.advance();
         }
-        return Token(HtmlToken::SPACE, str);
+        return Token(HtmlToken::SPACE, pos, str);
     }
 
     if (isAlphanum(c)) {
         std::string str(1, c);
         source_.advance();
-        while(isAlphanum(source_.getChar())){
+        while (isAlphanum(source_.getChar())) {
             str += source_.getChar();
             source_.advance();
         }
-        return Token(HtmlToken::STRING, str);
+        return Token(HtmlToken::STRING, pos, str);
     }
 
     if (c == '<') {
@@ -57,38 +58,38 @@ Token<HtmlToken> Lexer<HtmlToken>::makeToken() {
             if (source_.peek(2) == '-') {
                 if (source_.peek(3) == '-') {
                     source_.advance(4);
-                    return Token(HtmlToken::COMMENT_START, "<!--");
+                    return Token(HtmlToken::COMMENT_START, pos, "<!--");
                 }
             }
             source_.advance(2);
-            return Token(HtmlToken::START_DOCTYPE, "<!");
+            return Token(HtmlToken::START_DOCTYPE, pos, "<!");
         }
         if (source_.peek(1) == '/') {
             source_.advance(2);
-            return Token(HtmlToken::START_END_TAG, "</");
+            return Token(HtmlToken::START_END_TAG, pos, "</");
         }
         source_.advance();
-        return Token(HtmlToken::START_START_TAG, "<");
+        return Token(HtmlToken::START_START_TAG, pos, "<");
     }
 
     if (c == '-') {
         if (source_.peek(1) == '-') {
             if (source_.peek(2) == '>') {
                 source_.advance(3);
-                return Token(HtmlToken::COMMENT_END, "-->");
+                return Token(HtmlToken::COMMENT_END, pos, "-->");
             }
         }
         source_.advance();
-        return Token(HtmlToken::DASH, "-");
+        return Token(HtmlToken::DASH, pos, "-");
     }
 
     if (c == '/') {
         if (source_.peek() == '>') {
             source_.advance(2);
-            return Token(HtmlToken::END_VOID_TAG, "/>");
+            return Token(HtmlToken::END_VOID_TAG, pos, "/>");
         }
         source_.advance();
-        return Token(HtmlToken::SLASH, "/");
+        return Token(HtmlToken::SLASH, pos, "/");
     }
 
     if (c == '&') {
@@ -96,124 +97,143 @@ Token<HtmlToken> Lexer<HtmlToken>::makeToken() {
             char cx = source_.peek(2);
             if (cx == 'x' || cx == 'X') {
                 source_.advance(3);
-                return Token(HtmlToken::START_HEX_CHAR_REF, "&#x");
+                return Token(HtmlToken::START_HEX_CHAR_REF, pos, "&#x");
             }
             source_.advance(2);
-            return Token(HtmlToken::START_DECIMAL_CHAR_REF, "&#");
+            return Token(HtmlToken::START_DECIMAL_CHAR_REF, pos, "&#");
         }
         source_.advance();
-        return Token(HtmlToken::START_NAMED_CHAR_REF, "&");
+        return Token(HtmlToken::START_NAMED_CHAR_REF, pos, "&");
     }
 
-    if (c == '>') {source_.advance();return Token(HtmlToken::END_TAG, ">");}
+    if (c == '>') {
+        source_.advance();
+        return Token(HtmlToken::END_TAG, pos, ">");
+    }
 
-    if (c == '=') {source_.advance();return Token(HtmlToken::EQUALS, "=");}
+    if (c == '=') {
+        source_.advance();
+        return Token(HtmlToken::EQUALS, pos, "=");
+    }
 
-    if (c == '"') {source_.advance();return Token(HtmlToken::DOUBLE_QUOTE, "\"");}
+    if (c == '"') {
+        source_.advance();
+        return Token(HtmlToken::DOUBLE_QUOTE, pos, "\"");
+    }
 
-    if (c == '\'') {source_.advance();return Token(HtmlToken::SINGLE_QUOTE, "'");}
+    if (c == '\'') {
+        source_.advance();
+        return Token(HtmlToken::SINGLE_QUOTE, pos, "'");
+    }
 
-    if (c == ';') {source_.advance();return Token(HtmlToken::END_CHAR_REF, ";");}
+    if (c == ';') {
+        source_.advance();
+        return Token(HtmlToken::END_CHAR_REF, pos, ";");
+    }
 
-    if (isSymbol(c)) {source_.advance();return Token(HtmlToken::SYMBOL, std::string(1, c));}
+    if (isSymbol(c)) {
+        source_.advance();
+        return Token(HtmlToken::SYMBOL, pos, std::string(1, c));
+    }
 
-    return Token(HtmlToken::UNDEFINED);
+    return Token(HtmlToken::UNDEFINED, pos);
 }
 
 template <>
 Token<ConfToken> Lexer<ConfToken>::makeToken() {
     char c = source_.getChar();
+    unsigned int pos = source_.getPosition();
 
     if (c == '\0') {
-        return Token(ConfToken::END_OF_FILE);
+        return Token(ConfToken::END_OF_FILE, pos);
     }
 
     if (isSpace(c)) {
         std::string str(1, c);
         source_.advance();
-        while(isSpace(source_.getChar())){
+        while (isSpace(source_.getChar())) {
             str += source_.getChar();
             source_.advance();
         }
-        return Token(ConfToken::SPACE, str);
+        return Token(ConfToken::SPACE, pos, str);
     }
 
     if (isAlphanum(c)) {
         std::string str(1, c);
         source_.advance();
-        while(isAlphanum(source_.getChar())){
+        while (isAlphanum(source_.getChar())) {
             str += source_.getChar();
             source_.advance();
         }
-        return Token(ConfToken::STRING, str);
+        return Token(ConfToken::STRING, pos, str);
     }
 
     if (c == '(') {
         source_.advance();
-        return Token(ConfToken::START_RANGE, "(");
+        return Token(ConfToken::START_RANGE, pos, "(");
     }
 
     if (c == ')') {
         source_.advance();
-        return Token(ConfToken::END_RANGE, ")");
+        return Token(ConfToken::END_RANGE, pos, ")");
     }
 
     if (c == '[') {
         source_.advance();
-        return Token(ConfToken::START_ATTRIBUTE, "[");
+        return Token(ConfToken::START_ATTRIBUTE, pos, "[");
     }
 
     if (c == ']') {
         source_.advance();
-        return Token(ConfToken::END_ATTRIBUTE, "]");
+        return Token(ConfToken::END_ATTRIBUTE, pos, "]");
     }
 
     if (c == '=') {
         source_.advance();
-        return Token(ConfToken::EQUALS, "=");
+        return Token(ConfToken::EQUALS, pos, "=");
     }
 
     if (c == '"') {
         source_.advance();
-        return Token(ConfToken::DOUBLE_QUOTE, "\"");
+        return Token(ConfToken::DOUBLE_QUOTE, pos, "\"");
     }
 
     if (c == '\'') {
         source_.advance();
-        return Token(ConfToken::SINGLE_QUOTE, "'");
+        return Token(ConfToken::SINGLE_QUOTE, pos, "'");
     }
 
     if (c == ':') {
         source_.advance();
-        return Token(ConfToken::RANGE_SEPARATOR, ":");
+        return Token(ConfToken::RANGE_SEPARATOR, pos, ":");
     }
 
     if (c == '-') {
         source_.advance();
-        return Token(ConfToken::DASH, "-");
+        return Token(ConfToken::DASH, pos, "-");
     }
 
     if (c == '_') {
         source_.advance();
-        return Token(ConfToken::UNDERSCORE, "_");
+        return Token(ConfToken::UNDERSCORE, pos, "_");
     }
 
     if (c == '.') {
         source_.advance();
-        return Token(ConfToken::CLASS, ".");
+        return Token(ConfToken::CLASS, pos, ".");
     }
 
     if (c == '#') {
         source_.advance();
-        return Token(ConfToken::ID, "#");
+        return Token(ConfToken::ID, pos, "#");
     }
 
     if (isSymbol(c)) {
         source_.advance();
-        return Token(ConfToken::SYMBOL, std::string(1, c));
+        return Token(ConfToken::SYMBOL, pos, std::string(1, c));
     }
 
-    return Token(ConfToken::UNDEFINED);
+    return Token(ConfToken::UNDEFINED, pos);
 }
 
 template class Lexer<HtmlToken>;

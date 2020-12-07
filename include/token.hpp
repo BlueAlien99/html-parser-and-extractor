@@ -27,6 +27,7 @@ enum class HtmlToken {
     STRING,
     SYMBOL
 };
+
 enum class ConfToken {
     END_OF_FILE,
     UNDEFINED,
@@ -50,13 +51,16 @@ enum class ConfToken {
 template <typename Enum>
 class Token {
 public:
-    Token(Enum type) : type_(type) {}
-    Token(Enum type, std::string content) : type_(type), content_(content) {}
+    Token(Enum type, unsigned int position) : type_(type), position_(position) {}
+    Token(Enum type, unsigned int position, std::string content)
+        : type_(type), position_(position), content_(content) {}
     Enum getType() const { return type_; }
+    unsigned int getPosition() const { return position_; }
     std::string getContent() const { return content_; }
 
 private:
     Enum type_;
+    unsigned int position_;
     std::string content_;
 };
 

@@ -36,6 +36,11 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     include(CodeCoverage)
     setup_target_for_coverage_gcovr_html(
            NAME coverage
-           EXECUTABLE ./bin/test_sources
-           BASE_DIRECTORY ./bin)
+           EXECUTABLE ./bin/test_sources)
+    setup_target_for_coverage_gcovr_html(
+           NAME coverage_conf
+           EXECUTABLE ./bin/lexer_conf)
+    setup_target_for_coverage_gcovr_html(
+           NAME coverage_html
+           EXECUTABLE ./bin/lexer_html)
 endif()

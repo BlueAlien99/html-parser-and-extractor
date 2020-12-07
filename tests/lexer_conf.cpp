@@ -37,6 +37,7 @@ int main(){
             // std::cout<<(int)expected[i]<<" ";
             continue;
         } else{
+            std::cout<<"Error at position "<<actual[i].getPosition()<<"\n";
             std::cout<<"Mismatch at "<<i+1<<" token, actual is "<<(int)actual[i].getType()<<", expected "<<(int)expected[i]<<"!\n";
             return -1;
         }
