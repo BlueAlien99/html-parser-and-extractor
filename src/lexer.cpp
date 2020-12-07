@@ -3,7 +3,6 @@
 #include <string>
 
 #include "token.hpp"
-#include "utils.hpp"
 
 template <>
 Lexer<HtmlToken>::Lexer(AbstractSource& source)
@@ -33,22 +32,24 @@ Token<HtmlToken> Lexer<HtmlToken>::makeToken() {
         return Token(HtmlToken::END_OF_FILE, pos);
     }
 
-    if (isSpace(c)) {
+    if (isspace(c)) {
         std::string str(1, c);
         source_.advance();
-        while (isSpace(source_.getChar())) {
+        while (isspace(source_.getChar())) {
             str += source_.getChar();
             source_.advance();
         }
         return Token(HtmlToken::SPACE, pos, str);
     }
 
-    if (isAlphanum(c)) {
+    if (isalnum(c) || (signed char)c < 0) {
         std::string str(1, c);
         source_.advance();
-        while (isAlphanum(source_.getChar())) {
-            str += source_.getChar();
+        char nc = source_.getChar();
+        while (isalnum(nc) || (signed char)nc < 0) {
+            str += nc;
             source_.advance();
+            nc = source_.getChar();
         }
         return Token(HtmlToken::STRING, pos, str);
     }
@@ -131,7 +132,7 @@ Token<HtmlToken> Lexer<HtmlToken>::makeToken() {
         return Token(HtmlToken::END_CHAR_REF, pos, ";");
     }
 
-    if (isSymbol(c)) {
+    if (ispunct(c)) {
         source_.advance();
         return Token(HtmlToken::SYMBOL, pos, std::string(1, c));
     }
@@ -148,22 +149,24 @@ Token<ConfToken> Lexer<ConfToken>::makeToken() {
         return Token(ConfToken::END_OF_FILE, pos);
     }
 
-    if (isSpace(c)) {
+    if (isspace(c)) {
         std::string str(1, c);
         source_.advance();
-        while (isSpace(source_.getChar())) {
+        while (isspace(source_.getChar())) {
             str += source_.getChar();
             source_.advance();
         }
         return Token(ConfToken::SPACE, pos, str);
     }
 
-    if (isAlphanum(c)) {
+    if (isalnum(c) || (signed char)c < 0) {
         std::string str(1, c);
         source_.advance();
-        while (isAlphanum(source_.getChar())) {
-            str += source_.getChar();
+        char nc = source_.getChar();
+        while (isalnum(nc) || (signed char)nc < 0) {
+            str += nc;
             source_.advance();
+            nc = source_.getChar();
         }
         return Token(ConfToken::STRING, pos, str);
     }
@@ -228,7 +231,7 @@ Token<ConfToken> Lexer<ConfToken>::makeToken() {
         return Token(ConfToken::ID, pos, "#");
     }
 
-    if (isSymbol(c)) {
+    if (ispunct(c)) {
         source_.advance();
         return Token(ConfToken::SYMBOL, pos, std::string(1, c));
     }
