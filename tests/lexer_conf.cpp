@@ -20,11 +20,11 @@ int main(){
 
     SourceFromFile src("./data/random_conf.txt");
     Lexer<ConfToken> lexer(src);
-    Token<ConfToken> token = lexer.getNextToken();
+    Token<ConfToken> token = lexer.buildNextToken();
     while(token.getType() != ConfToken::END_OF_FILE){
         actual.push_back(token);
         std::cout<<token.getContent();
-        token = lexer.getNextToken();
+        token = lexer.buildNextToken();
     }
 
     if(expected.size() != actual.size()){

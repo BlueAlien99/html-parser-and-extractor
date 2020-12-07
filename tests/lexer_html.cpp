@@ -34,11 +34,11 @@ int main(){
 
     SourceFromFile src("./data/random_file.html");
     Lexer<HtmlToken> lexer(src);
-    Token<HtmlToken> token = lexer.getNextToken();
+    Token<HtmlToken> token = lexer.buildNextToken();
     while(token.getType() != HtmlToken::END_OF_FILE){
         actual.push_back(token);
         std::cout<<token.getContent();
-        token = lexer.getNextToken();
+        token = lexer.buildNextToken();
     }
 
     if(expected.size() != actual.size()){

@@ -13,18 +13,18 @@ Lexer<ConfToken>::Lexer(AbstractSource& source)
     : source_(source), token_(Token(ConfToken::UNDEFINED, 0)) {}
 
 template <typename Type>
-Token<Type> Lexer<Type>::getNextToken() {
-    token_ = makeToken();
+Token<Type> Lexer<Type>::buildNextToken() {
+    token_ = buildToken();
     return token_;
 }
 
 template <typename Type>
-Token<Type> Lexer<Type>::getLastToken() const {
+Token<Type> Lexer<Type>::getToken() const {
     return token_;
 }
 
 template <>
-Token<HtmlToken> Lexer<HtmlToken>::makeToken() {
+Token<HtmlToken> Lexer<HtmlToken>::buildToken() {
     char c = source_.getChar();
     unsigned int pos = source_.getPosition();
 
@@ -141,7 +141,7 @@ Token<HtmlToken> Lexer<HtmlToken>::makeToken() {
 }
 
 template <>
-Token<ConfToken> Lexer<ConfToken>::makeToken() {
+Token<ConfToken> Lexer<ConfToken>::buildToken() {
     char c = source_.getChar();
     unsigned int pos = source_.getPosition();
 

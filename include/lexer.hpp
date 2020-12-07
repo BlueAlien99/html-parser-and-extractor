@@ -8,11 +8,11 @@ template <typename Type>
 class Lexer {
 public:
     Lexer(AbstractSource& source);
-    Token<Type> getNextToken();
-    Token<Type> getLastToken() const;
+    Token<Type> buildNextToken();
+    Token<Type> getToken() const;
 
 private:
-    Token<Type> makeToken();
+    Token<Type> buildToken();
 
     AbstractSource& source_;
     Token<Type> token_;
