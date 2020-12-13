@@ -14,6 +14,34 @@ Token AbstractLexer::buildNextToken() {
 
 Token AbstractLexer::getToken() const { return token_; }
 
+Token AbstractLexer::tryToBuidSpace() {
+    char c = source_.getChar();
+    unsigned int pos = source_.getPosition();
+    if (isspace(c)) {
+        std::string str(1, c);
+        while (isspace(source_.advance())) {
+            str += source_.getChar();
+        }
+        return Token(TokenType::SPACE, pos, str);
+    }
+    return Token(TokenType::UNDEFINED, pos, std::string(1, c));
+}
+
+Token AbstractLexer::tryToBuidString() {
+    char c = source_.getChar();
+    unsigned int pos = source_.getPosition();
+    if (isalnum(c) || (signed char)c < 0) {
+        std::string str(1, c);
+        char nc = source_.advance();
+        while (isalnum(nc) || (signed char)nc < 0) {
+            str += nc;
+            nc = source_.advance();
+        }
+        return Token(TokenType::STRING, pos, str);
+    }
+    return Token(TokenType::UNDEFINED, pos, std::string(1, c));
+}
+
 HtmlLexer::HtmlLexer(AbstractSource& source)
     : AbstractLexer(source, Token(TokenType::UNDEFINED, 0)) {}
 
@@ -28,26 +56,14 @@ Token HtmlLexer::buildToken() {
         return Token(TokenType::END_OF_FILE, pos);
     }
 
-    if (isspace(c)) {
-        std::string str(1, c);
-        source_.advance();
-        while (isspace(source_.getChar())) {
-            str += source_.getChar();
-            source_.advance();
-        }
-        return Token(TokenType::SPACE, pos, str);
+    Token space = tryToBuidSpace();
+    if (space.getType() == TokenType::SPACE) {
+        return space;
     }
 
-    if (isalnum(c) || (signed char)c < 0) {
-        std::string str(1, c);
-        source_.advance();
-        char nc = source_.getChar();
-        while (isalnum(nc) || (signed char)nc < 0) {
-            str += nc;
-            source_.advance();
-            nc = source_.getChar();
-        }
-        return Token(TokenType::STRING, pos, str);
+    Token string = tryToBuidString();
+    if (string.getType() == TokenType::STRING) {
+        return string;
     }
 
     if (c == '<') {
@@ -103,29 +119,22 @@ Token HtmlLexer::buildToken() {
         return Token(TokenType::START_NAMED_CHAR_REF, pos, "&");
     }
 
-    if (c == '>') {
-        source_.advance();
-        return Token(TokenType::END_TAG, pos, ">");
-    }
-
-    if (c == '=') {
-        source_.advance();
-        return Token(TokenType::EQUALS, pos, "=");
-    }
-
-    if (c == '"') {
-        source_.advance();
-        return Token(TokenType::DOUBLE_QUOTE, pos, "\"");
-    }
-
-    if (c == '\'') {
-        source_.advance();
-        return Token(TokenType::SINGLE_QUOTE, pos, "'");
-    }
-
-    if (c == ';') {
-        source_.advance();
-        return Token(TokenType::END_CHAR_REF, pos, ";");
+    switch (c) {
+        case '>':
+            source_.advance();
+            return Token(TokenType::END_TAG, pos, ">");
+        case '=':
+            source_.advance();
+            return Token(TokenType::EQUALS, pos, "=");
+        case '"':
+            source_.advance();
+            return Token(TokenType::DOUBLE_QUOTE, pos, "\"");
+        case '\'':
+            source_.advance();
+            return Token(TokenType::SINGLE_QUOTE, pos, "'");
+        case ';':
+            source_.advance();
+            return Token(TokenType::END_CHAR_REF, pos, ";");
     }
 
     if (ispunct(c)) {
@@ -144,86 +153,53 @@ Token ConfLexer::buildToken() {
         return Token(TokenType::END_OF_FILE, pos);
     }
 
-    if (isspace(c)) {
-        std::string str(1, c);
-        source_.advance();
-        while (isspace(source_.getChar())) {
-            str += source_.getChar();
+    Token space = tryToBuidSpace();
+    if (space.getType() == TokenType::SPACE) {
+        return space;
+    }
+
+    Token string = tryToBuidString();
+    if (string.getType() == TokenType::STRING) {
+        return string;
+    }
+
+    switch (c) {
+        case '(':
             source_.advance();
-        }
-        return Token(TokenType::SPACE, pos, str);
-    }
-
-    if (isalnum(c) || (signed char)c < 0) {
-        std::string str(1, c);
-        source_.advance();
-        char nc = source_.getChar();
-        while (isalnum(nc) || (signed char)nc < 0) {
-            str += nc;
+            return Token(TokenType::START_RANGE, pos, "(");
+        case ')':
             source_.advance();
-            nc = source_.getChar();
-        }
-        return Token(TokenType::STRING, pos, str);
-    }
-
-    if (c == '(') {
-        source_.advance();
-        return Token(TokenType::START_RANGE, pos, "(");
-    }
-
-    if (c == ')') {
-        source_.advance();
-        return Token(TokenType::END_RANGE, pos, ")");
-    }
-
-    if (c == '[') {
-        source_.advance();
-        return Token(TokenType::START_ATTRIBUTE, pos, "[");
-    }
-
-    if (c == ']') {
-        source_.advance();
-        return Token(TokenType::END_ATTRIBUTE, pos, "]");
-    }
-
-    if (c == '=') {
-        source_.advance();
-        return Token(TokenType::EQUALS, pos, "=");
-    }
-
-    if (c == '"') {
-        source_.advance();
-        return Token(TokenType::DOUBLE_QUOTE, pos, "\"");
-    }
-
-    if (c == '\'') {
-        source_.advance();
-        return Token(TokenType::SINGLE_QUOTE, pos, "'");
-    }
-
-    if (c == ':') {
-        source_.advance();
-        return Token(TokenType::RANGE_SEPARATOR, pos, ":");
-    }
-
-    if (c == '-') {
-        source_.advance();
-        return Token(TokenType::DASH, pos, "-");
-    }
-
-    if (c == '_') {
-        source_.advance();
-        return Token(TokenType::UNDERSCORE, pos, "_");
-    }
-
-    if (c == '.') {
-        source_.advance();
-        return Token(TokenType::CLASS, pos, ".");
-    }
-
-    if (c == '#') {
-        source_.advance();
-        return Token(TokenType::ID, pos, "#");
+            return Token(TokenType::END_RANGE, pos, ")");
+        case '[':
+            source_.advance();
+            return Token(TokenType::START_ATTRIBUTE, pos, "[");
+        case ']':
+            source_.advance();
+            return Token(TokenType::END_ATTRIBUTE, pos, "]");
+        case '=':
+            source_.advance();
+            return Token(TokenType::EQUALS, pos, "=");
+        case '"':
+            source_.advance();
+            return Token(TokenType::DOUBLE_QUOTE, pos, "\"");
+        case '\'':
+            source_.advance();
+            return Token(TokenType::SINGLE_QUOTE, pos, "'");
+        case ':':
+            source_.advance();
+            return Token(TokenType::RANGE_SEPARATOR, pos, ":");
+        case '-':
+            source_.advance();
+            return Token(TokenType::DASH, pos, "-");
+        case '_':
+            source_.advance();
+            return Token(TokenType::UNDERSCORE, pos, "_");
+        case '.':
+            source_.advance();
+            return Token(TokenType::CLASS, pos, ".");
+        case '#':
+            source_.advance();
+            return Token(TokenType::ID, pos, "#");
     }
 
     if (ispunct(c)) {
