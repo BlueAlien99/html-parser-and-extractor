@@ -1,24 +1,20 @@
 #ifndef LEXER_HPP
 #define LEXER_HPP
 
-#include <variant>
-
 #include "sources.hpp"
 #include "token.hpp"
 
-using VariantToken = std::variant<Token<HtmlToken>, Token<ConfToken> >;
-
 class AbstractLexer {
 public:
-    VariantToken buildNextToken();
-    VariantToken getToken() const;
+    Token buildNextToken();
+    Token getToken() const;
 
 protected:
-    AbstractLexer(AbstractSource& source, VariantToken token);
-    virtual VariantToken buildToken() = 0;
+    AbstractLexer(AbstractSource& source, Token token);
+    virtual Token buildToken() = 0;
 
     AbstractSource& source_;
-    VariantToken token_;
+    Token token_;
 };
 
 class HtmlLexer : public AbstractLexer {
@@ -26,7 +22,7 @@ public:
     HtmlLexer(AbstractSource& source);
 
 private:
-    VariantToken buildToken();
+    Token buildToken();
 };
 
 class ConfLexer : public AbstractLexer {
@@ -34,7 +30,7 @@ public:
     ConfLexer(AbstractSource& source);
 
 private:
-    VariantToken buildToken();
+    Token buildToken();
 };
 
 #endif

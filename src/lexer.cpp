@@ -1,32 +1,31 @@
 #include "lexer.hpp"
 
 #include <string>
-#include <variant>
 
 #include "token.hpp"
 
-AbstractLexer::AbstractLexer(AbstractSource& source, VariantToken token)
+AbstractLexer::AbstractLexer(AbstractSource& source, Token token)
     : source_(source), token_(token) {}
 
-VariantToken AbstractLexer::buildNextToken() {
+Token AbstractLexer::buildNextToken() {
     token_ = buildToken();
     return token_;
 }
 
-VariantToken AbstractLexer::getToken() const { return token_; }
+Token AbstractLexer::getToken() const { return token_; }
 
 HtmlLexer::HtmlLexer(AbstractSource& source)
-    : AbstractLexer(source, Token(HtmlToken::UNDEFINED, 0)) {}
+    : AbstractLexer(source, Token(TokenType::UNDEFINED, 0)) {}
 
 ConfLexer::ConfLexer(AbstractSource& source)
-    : AbstractLexer(source, Token(ConfToken::UNDEFINED, 0)) {}
+    : AbstractLexer(source, Token(TokenType::UNDEFINED, 0)) {}
 
-VariantToken HtmlLexer::buildToken() {
+Token HtmlLexer::buildToken() {
     char c = source_.getChar();
     unsigned int pos = source_.getPosition();
 
     if (c == '\0') {
-        return Token(HtmlToken::END_OF_FILE, pos);
+        return Token(TokenType::END_OF_FILE, pos);
     }
 
     if (isspace(c)) {
@@ -36,7 +35,7 @@ VariantToken HtmlLexer::buildToken() {
             str += source_.getChar();
             source_.advance();
         }
-        return Token(HtmlToken::SPACE, pos, str);
+        return Token(TokenType::SPACE, pos, str);
     }
 
     if (isalnum(c) || (signed char)c < 0) {
@@ -48,7 +47,7 @@ VariantToken HtmlLexer::buildToken() {
             source_.advance();
             nc = source_.getChar();
         }
-        return Token(HtmlToken::STRING, pos, str);
+        return Token(TokenType::STRING, pos, str);
     }
 
     if (c == '<') {
@@ -56,38 +55,38 @@ VariantToken HtmlLexer::buildToken() {
             if (source_.peek(2) == '-') {
                 if (source_.peek(3) == '-') {
                     source_.advance(4);
-                    return Token(HtmlToken::COMMENT_START, pos, "<!--");
+                    return Token(TokenType::COMMENT_START, pos, "<!--");
                 }
             }
             source_.advance(2);
-            return Token(HtmlToken::START_DOCTYPE, pos, "<!");
+            return Token(TokenType::START_DOCTYPE, pos, "<!");
         }
         if (source_.peek(1) == '/') {
             source_.advance(2);
-            return Token(HtmlToken::START_END_TAG, pos, "</");
+            return Token(TokenType::START_END_TAG, pos, "</");
         }
         source_.advance();
-        return Token(HtmlToken::START_START_TAG, pos, "<");
+        return Token(TokenType::START_START_TAG, pos, "<");
     }
 
     if (c == '-') {
         if (source_.peek(1) == '-') {
             if (source_.peek(2) == '>') {
                 source_.advance(3);
-                return Token(HtmlToken::COMMENT_END, pos, "-->");
+                return Token(TokenType::COMMENT_END, pos, "-->");
             }
         }
         source_.advance();
-        return Token(HtmlToken::DASH, pos, "-");
+        return Token(TokenType::DASH, pos, "-");
     }
 
     if (c == '/') {
         if (source_.peek() == '>') {
             source_.advance(2);
-            return Token(HtmlToken::END_VOID_TAG, pos, "/>");
+            return Token(TokenType::END_VOID_TAG, pos, "/>");
         }
         source_.advance();
-        return Token(HtmlToken::SLASH, pos, "/");
+        return Token(TokenType::SLASH, pos, "/");
     }
 
     if (c == '&') {
@@ -95,54 +94,54 @@ VariantToken HtmlLexer::buildToken() {
             char cx = source_.peek(2);
             if (cx == 'x' || cx == 'X') {
                 source_.advance(3);
-                return Token(HtmlToken::START_HEX_CHAR_REF, pos, "&#x");
+                return Token(TokenType::START_HEX_CHAR_REF, pos, "&#x");
             }
             source_.advance(2);
-            return Token(HtmlToken::START_DECIMAL_CHAR_REF, pos, "&#");
+            return Token(TokenType::START_DECIMAL_CHAR_REF, pos, "&#");
         }
         source_.advance();
-        return Token(HtmlToken::START_NAMED_CHAR_REF, pos, "&");
+        return Token(TokenType::START_NAMED_CHAR_REF, pos, "&");
     }
 
     if (c == '>') {
         source_.advance();
-        return Token(HtmlToken::END_TAG, pos, ">");
+        return Token(TokenType::END_TAG, pos, ">");
     }
 
     if (c == '=') {
         source_.advance();
-        return Token(HtmlToken::EQUALS, pos, "=");
+        return Token(TokenType::EQUALS, pos, "=");
     }
 
     if (c == '"') {
         source_.advance();
-        return Token(HtmlToken::DOUBLE_QUOTE, pos, "\"");
+        return Token(TokenType::DOUBLE_QUOTE, pos, "\"");
     }
 
     if (c == '\'') {
         source_.advance();
-        return Token(HtmlToken::SINGLE_QUOTE, pos, "'");
+        return Token(TokenType::SINGLE_QUOTE, pos, "'");
     }
 
     if (c == ';') {
         source_.advance();
-        return Token(HtmlToken::END_CHAR_REF, pos, ";");
+        return Token(TokenType::END_CHAR_REF, pos, ";");
     }
 
     if (ispunct(c)) {
         source_.advance();
-        return Token(HtmlToken::SYMBOL, pos, std::string(1, c));
+        return Token(TokenType::SYMBOL, pos, std::string(1, c));
     }
 
-    return Token(HtmlToken::UNDEFINED, pos);
+    return Token(TokenType::UNDEFINED, pos);
 }
 
-VariantToken ConfLexer::buildToken() {
+Token ConfLexer::buildToken() {
     char c = source_.getChar();
     unsigned int pos = source_.getPosition();
 
     if (c == '\0') {
-        return Token(ConfToken::END_OF_FILE, pos);
+        return Token(TokenType::END_OF_FILE, pos);
     }
 
     if (isspace(c)) {
@@ -152,7 +151,7 @@ VariantToken ConfLexer::buildToken() {
             str += source_.getChar();
             source_.advance();
         }
-        return Token(ConfToken::SPACE, pos, str);
+        return Token(TokenType::SPACE, pos, str);
     }
 
     if (isalnum(c) || (signed char)c < 0) {
@@ -164,73 +163,73 @@ VariantToken ConfLexer::buildToken() {
             source_.advance();
             nc = source_.getChar();
         }
-        return Token(ConfToken::STRING, pos, str);
+        return Token(TokenType::STRING, pos, str);
     }
 
     if (c == '(') {
         source_.advance();
-        return Token(ConfToken::START_RANGE, pos, "(");
+        return Token(TokenType::START_RANGE, pos, "(");
     }
 
     if (c == ')') {
         source_.advance();
-        return Token(ConfToken::END_RANGE, pos, ")");
+        return Token(TokenType::END_RANGE, pos, ")");
     }
 
     if (c == '[') {
         source_.advance();
-        return Token(ConfToken::START_ATTRIBUTE, pos, "[");
+        return Token(TokenType::START_ATTRIBUTE, pos, "[");
     }
 
     if (c == ']') {
         source_.advance();
-        return Token(ConfToken::END_ATTRIBUTE, pos, "]");
+        return Token(TokenType::END_ATTRIBUTE, pos, "]");
     }
 
     if (c == '=') {
         source_.advance();
-        return Token(ConfToken::EQUALS, pos, "=");
+        return Token(TokenType::EQUALS, pos, "=");
     }
 
     if (c == '"') {
         source_.advance();
-        return Token(ConfToken::DOUBLE_QUOTE, pos, "\"");
+        return Token(TokenType::DOUBLE_QUOTE, pos, "\"");
     }
 
     if (c == '\'') {
         source_.advance();
-        return Token(ConfToken::SINGLE_QUOTE, pos, "'");
+        return Token(TokenType::SINGLE_QUOTE, pos, "'");
     }
 
     if (c == ':') {
         source_.advance();
-        return Token(ConfToken::RANGE_SEPARATOR, pos, ":");
+        return Token(TokenType::RANGE_SEPARATOR, pos, ":");
     }
 
     if (c == '-') {
         source_.advance();
-        return Token(ConfToken::DASH, pos, "-");
+        return Token(TokenType::DASH, pos, "-");
     }
 
     if (c == '_') {
         source_.advance();
-        return Token(ConfToken::UNDERSCORE, pos, "_");
+        return Token(TokenType::UNDERSCORE, pos, "_");
     }
 
     if (c == '.') {
         source_.advance();
-        return Token(ConfToken::CLASS, pos, ".");
+        return Token(TokenType::CLASS, pos, ".");
     }
 
     if (c == '#') {
         source_.advance();
-        return Token(ConfToken::ID, pos, "#");
+        return Token(TokenType::ID, pos, "#");
     }
 
     if (ispunct(c)) {
         source_.advance();
-        return Token(ConfToken::SYMBOL, pos, std::string(1, c));
+        return Token(TokenType::SYMBOL, pos, std::string(1, c));
     }
 
-    return Token(ConfToken::UNDEFINED, pos);
+    return Token(TokenType::UNDEFINED, pos);
 }
