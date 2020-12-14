@@ -2,39 +2,39 @@
 #define SOURCES_HPP
 
 #include <fstream>
-#include <string>
+#include <istream>
+#include <memory>
+#include <sstream>
 
 class AbstractSource {
 public:
-    virtual char getChar(int offset = 0) const = 0;
-
-    char advance(int step = 1);
-    char peek(int offset = 1) const;
+    char advance(int offset = 0);
+    char peek() const;
+    char getChar() const;
     unsigned int getPosition() const;
 
 protected:
     AbstractSource();
 
-    unsigned int position_;
+    char current_char_;
+    std::unique_ptr<std::istream> stream_;
 };
 
 class SourceFromString : public AbstractSource {
 public:
     SourceFromString(std::string str);
-    char getChar(int offset = 0) const;
 
 private:
-    std::string buffer_;
+    std::unique_ptr<std::stringbuf> stringbuf_;
 };
 
 class SourceFromFile : public AbstractSource {
 public:
     SourceFromFile(std::string path);
     ~SourceFromFile();
-    char getChar(int offset = 0) const;
 
 private:
-    mutable std::ifstream file_;
+    std::unique_ptr<std::filebuf> filebuf_;
 };
 
 class SourceFromUrl : public AbstractSource {
@@ -42,10 +42,9 @@ public:
     static size_t writeCallback(char *content, size_t size, size_t nmemb, void *userdata);
 
     SourceFromUrl(std::string url);
-    char getChar(int offset = 0) const;
 
 private:
-    std::string buffer_;
+    std::unique_ptr<std::stringbuf> stringbuf_;
 };
 
 #endif

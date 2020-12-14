@@ -67,55 +67,55 @@ Token HtmlLexer::buildToken() {
     }
 
     if (c == '<') {
-        if (source_.peek(1) == '!') {
-            if (source_.peek(2) == '-') {
-                if (source_.peek(3) == '-') {
-                    source_.advance(4);
+        source_.advance();
+        if (source_.getChar() == '!') {
+            source_.advance();
+            if (source_.getChar() == '-') {
+                if (source_.peek() == '-') {
+                    source_.advance(2);
                     return Token(TokenType::COMMENT_START, pos, "<!--");
                 }
             }
-            source_.advance(2);
             return Token(TokenType::START_DOCTYPE, pos, "<!");
         }
-        if (source_.peek(1) == '/') {
-            source_.advance(2);
+        if (source_.getChar() == '/') {
+            source_.advance();
             return Token(TokenType::START_END_TAG, pos, "</");
         }
-        source_.advance();
         return Token(TokenType::START_START_TAG, pos, "<");
     }
 
     if (c == '-') {
-        if (source_.peek(1) == '-') {
-            if (source_.peek(2) == '>') {
-                source_.advance(3);
+        source_.advance();
+        if (source_.getChar() == '-') {
+            if (source_.peek() == '>') {
+                source_.advance(2);
                 return Token(TokenType::COMMENT_END, pos, "-->");
             }
         }
-        source_.advance();
         return Token(TokenType::DASH, pos, "-");
     }
 
     if (c == '/') {
-        if (source_.peek() == '>') {
-            source_.advance(2);
+        source_.advance();
+        if (source_.getChar() == '>') {
+            source_.advance();
             return Token(TokenType::END_VOID_TAG, pos, "/>");
         }
-        source_.advance();
         return Token(TokenType::SLASH, pos, "/");
     }
 
     if (c == '&') {
-        if (source_.peek(1) == '#') {
-            char cx = source_.peek(2);
+        source_.advance();
+        if (source_.getChar() == '#') {
+            source_.advance();
+            char cx = source_.getChar();
             if (cx == 'x' || cx == 'X') {
-                source_.advance(3);
+                source_.advance();
                 return Token(TokenType::START_HEX_CHAR_REF, pos, "&#x");
             }
-            source_.advance(2);
             return Token(TokenType::START_DECIMAL_CHAR_REF, pos, "&#");
         }
-        source_.advance();
         return Token(TokenType::START_NAMED_CHAR_REF, pos, "&");
     }
 
