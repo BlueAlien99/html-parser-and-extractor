@@ -7,14 +7,14 @@
 #include "token.hpp"
 
 int main() {
-    using CT = TokenType;
+    using TT = TokenType;
 
     std::vector expected = { 
-        CT::STRING, CT::ID, CT::STRING, CT::UNDERSCORE, CT::STRING, CT::SPACE,
-        CT::STRING, CT::CLASS, CT::STRING, CT::SPACE,
-        CT::CLASS, CT::STRING, CT::CLASS, CT::STRING, CT::START_ATTRIBUTE, CT::STRING, CT::DASH, CT::STRING, CT::DASH, CT::STRING, CT::EQUALS, CT::DOUBLE_QUOTE, CT::STRING, CT::DOUBLE_QUOTE, CT::END_ATTRIBUTE, CT::SPACE,
-        CT::STRING, CT::START_RANGE, CT::STRING, CT::END_RANGE, CT::START_RANGE, CT::STRING, CT::RANGE_SEPARATOR, CT::DASH, CT::STRING, CT::END_RANGE, CT::SPACE,
-        CT::STRING, CT::START_ATTRIBUTE, CT::STRING, CT::EQUALS, CT::SINGLE_QUOTE, CT::SYMBOL, CT::SINGLE_QUOTE, CT::END_ATTRIBUTE, CT::SPACE
+        TT::STRING, TT::ID, TT::STRING, TT::UNDERSCORE, TT::STRING, TT::SPACE,
+        TT::STRING, TT::CLASS, TT::STRING, TT::SPACE,
+        TT::CLASS, TT::STRING, TT::CLASS, TT::STRING, TT::START_ATTRIBUTE, TT::STRING, TT::DASH, TT::STRING, TT::DASH, TT::STRING, TT::EQUALS, TT::DOUBLE_QUOTE, TT::STRING, TT::DOUBLE_QUOTE, TT::END_ATTRIBUTE, TT::SPACE,
+        TT::STRING, TT::START_RANGE, TT::STRING, TT::END_RANGE, TT::START_RANGE, TT::STRING, TT::RANGE_SEPARATOR, TT::DASH, TT::STRING, TT::END_RANGE, TT::SPACE,
+        TT::STRING, TT::START_ATTRIBUTE, TT::STRING, TT::EQUALS, TT::SINGLE_QUOTE, TT::SYMBOL, TT::SINGLE_QUOTE, TT::END_ATTRIBUTE, TT::SPACE
     };
 
     std::vector<Token> actual;
@@ -40,7 +40,9 @@ int main() {
             // std::cout<<(int)expected[i]<<" ";
             continue;
         } else {
-            std::cout << "Error at position " << actual[i].getPosition() << "\n";
+            Position pos = actual[i].getPosition();
+            std::cout << "Error at position " << pos.line << ":" << pos.column << " -> " << pos.text
+                      << "\n";
             std::cout << "Mismatch at " << i + 1 << " token, actual is " << (int)actual[i].getType()
                       << ", expected " << (int)expected[i] << "!\n";
             return -1;

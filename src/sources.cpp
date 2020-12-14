@@ -8,18 +8,25 @@
 #include <sstream>
 #include <string>
 
+#include "token.hpp"
+
 //
 // AbstractSource
 //
-AbstractSource::AbstractSource() : current_char_(0) {}
+AbstractSource::AbstractSource() : current_char_(0), position_(Position(1, 0, "")) {}
 
-char AbstractSource::advance(int offset) {
-    stream_->clear();
-    stream_->seekg(offset > 0 ? offset - 1 : offset, std::ios_base::cur);
+char AbstractSource::advance(unsigned int step) {
+    if (step == 0) {
+        step = 1;
+    }
+    while (--step) {
+        updatePosition(stream_->get());
+    }
     current_char_ = stream_->get();
     if (current_char_ == EOF) {
         current_char_ = 0;
     }
+    updatePosition(current_char_);
     return current_char_;
 }
 
@@ -33,7 +40,24 @@ char AbstractSource::peek() const {
 
 char AbstractSource::getChar() const { return current_char_; }
 
-unsigned int AbstractSource::getPosition() const { return stream_->tellg(); }
+Position AbstractSource::getPosition() const { return position_; }
+
+void AbstractSource::updatePosition(char c) {
+    if (c == 0 || c == EOF) {
+        return;
+    }
+    if (c == '\n') {
+        ++position_.line;
+        position_.column = 0;
+        position_.text = "";
+    } else {
+        ++position_.column;
+        position_.text += c;
+        if (position_.text.size() > 24) {
+            position_.text = position_.text.substr(1);
+        }
+    }
+}
 
 //
 // SourceFromString

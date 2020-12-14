@@ -16,7 +16,7 @@ Token AbstractLexer::getToken() const { return token_; }
 
 Token AbstractLexer::tryToBuidSpace() {
     char c = source_.getChar();
-    unsigned int pos = source_.getPosition();
+    Position pos = source_.getPosition();
     if (isspace(c)) {
         std::string str(1, c);
         while (isspace(source_.advance())) {
@@ -29,7 +29,7 @@ Token AbstractLexer::tryToBuidSpace() {
 
 Token AbstractLexer::tryToBuidString() {
     char c = source_.getChar();
-    unsigned int pos = source_.getPosition();
+    Position pos = source_.getPosition();
     if (isalnum(c) || (signed char)c < 0) {
         std::string str(1, c);
         char nc = source_.advance();
@@ -42,15 +42,13 @@ Token AbstractLexer::tryToBuidString() {
     return Token(TokenType::UNDEFINED, pos, std::string(1, c));
 }
 
-HtmlLexer::HtmlLexer(AbstractSource& source)
-    : AbstractLexer(source, Token(TokenType::UNDEFINED, 0)) {}
+HtmlLexer::HtmlLexer(AbstractSource& source) : AbstractLexer(source, Token(TokenType::UNDEFINED)) {}
 
-ConfLexer::ConfLexer(AbstractSource& source)
-    : AbstractLexer(source, Token(TokenType::UNDEFINED, 0)) {}
+ConfLexer::ConfLexer(AbstractSource& source) : AbstractLexer(source, Token(TokenType::UNDEFINED)) {}
 
 Token HtmlLexer::buildToken() {
     char c = source_.getChar();
-    unsigned int pos = source_.getPosition();
+    Position pos = source_.getPosition();
 
     if (c == '\0') {
         return Token(TokenType::END_OF_FILE, pos);
@@ -147,7 +145,7 @@ Token HtmlLexer::buildToken() {
 
 Token ConfLexer::buildToken() {
     char c = source_.getChar();
-    unsigned int pos = source_.getPosition();
+    Position pos = source_.getPosition();
 
     if (c == '\0') {
         return Token(TokenType::END_OF_FILE, pos);

@@ -6,18 +6,25 @@
 #include <memory>
 #include <sstream>
 
+#include "token.hpp"
+
 class AbstractSource {
 public:
-    char advance(int offset = 0);
+    char advance(unsigned int step = 1);
     char peek() const;
     char getChar() const;
-    unsigned int getPosition() const;
+    Position getPosition() const;
 
 protected:
     AbstractSource();
 
-    char current_char_;
     std::unique_ptr<std::istream> stream_;
+
+private:
+    void updatePosition(char c);
+
+    char current_char_;
+    Position position_;
 };
 
 class SourceFromString : public AbstractSource {

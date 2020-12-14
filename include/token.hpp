@@ -40,18 +40,29 @@ enum class TokenType {
     ID
 };
 
+struct Position {
+    Position() : line(-1), column(-1) {}
+    Position(int line, int column, std::string text) : line(line), column(column), text(text) {}
+
+    int line;
+    int column;
+    std::string text;
+};
+
 class Token {
 public:
-    Token(TokenType type, unsigned int position) : type_(type), position_(position) {}
-    Token(TokenType type, unsigned int position, std::string content)
+    Token(TokenType type) : type_(type), position_(Position()) {}
+    Token(TokenType type, Position position) : type_(type), position_(position) {}
+    Token(TokenType type, Position position, std::string content)
         : type_(type), position_(position), content_(content) {}
+
     TokenType getType() const { return type_; }
-    unsigned int getPosition() const { return position_; }
+    Position getPosition() const { return position_; }
     std::string getContent() const { return content_; }
 
 private:
     TokenType type_;
-    unsigned int position_;
+    Position position_;
     std::string content_;
 };
 
