@@ -41,12 +41,14 @@ enum class TokenType {
 };
 
 struct Position {
-    Position() : line(-1), column(-1) {}
-    Position(int line, int column, std::string text) : line(line), column(column), text(text) {}
+    Position() : src_pos(-1), src_line_pos(-1), line(-1), column(-1) {}
+    Position(int src_pos, int src_line_pos, int line, int column)
+        : src_pos(src_pos), src_line_pos(src_line_pos), line(line), column(column) {}
 
+    int src_pos;
+    int src_line_pos;
     int line;
     int column;
-    std::string text;
 };
 
 class Token {

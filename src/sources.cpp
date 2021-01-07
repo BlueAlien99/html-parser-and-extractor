@@ -13,7 +13,7 @@
 //
 // AbstractSource
 //
-AbstractSource::AbstractSource() : current_char_(0), position_(Position(1, 0, "")) {}
+AbstractSource::AbstractSource() : current_char_(0), position_(Position(0, 0, 1, 0)) {}
 
 char AbstractSource::advance(unsigned int step) {
     if (step == 0) {
@@ -42,20 +42,29 @@ char AbstractSource::getChar() const { return current_char_; }
 
 Position AbstractSource::getPosition() const { return position_; }
 
+std::string AbstractSource::getTextAtPosition(const Position &pos) {
+    int len = pos.src_pos - pos.src_line_pos;
+    char *buffer = new char[len];
+    stream_->seekg(pos.src_line_pos);
+    stream_->read(buffer, len);
+    std::string text(buffer);
+    delete[] buffer;
+    stream_->clear();
+    stream_->seekg(position_.src_pos);
+    return text;
+}
+
 void AbstractSource::updatePosition(char c) {
     if (c == 0 || c == EOF) {
         return;
     }
+    position_.src_pos = stream_->tellg();
     if (c == '\n') {
+        position_.src_line_pos = position_.src_pos;
         ++position_.line;
         position_.column = 0;
-        position_.text = "";
     } else {
         ++position_.column;
-        position_.text += c;
-        if (position_.text.size() > 24) {
-            position_.text = position_.text.substr(1);
-        }
     }
 }
 

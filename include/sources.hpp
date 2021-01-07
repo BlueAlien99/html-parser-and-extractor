@@ -5,6 +5,8 @@
 #include <istream>
 #include <memory>
 #include <sstream>
+#include <string>
+#include <vector>
 
 #include "token.hpp"
 
@@ -14,6 +16,7 @@ public:
     char peek() const;
     char getChar() const;
     Position getPosition() const;
+    std::string getTextAtPosition(const Position &pos);
 
 protected:
     AbstractSource();

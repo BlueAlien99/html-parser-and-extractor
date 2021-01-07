@@ -54,7 +54,7 @@ int main() {
             continue;
         } else {
             Position pos = actual[i].getPosition();
-            std::cout << "Error at position " << pos.line << ":" << pos.column << " -> " << pos.text
+            std::cout << "Error at position " << pos.line << ":" << pos.column << " -> " << src.getTextAtPosition(pos)
                       << "\n";
             std::cout << "Mismatch at " << i + 1 << " token, actual is " << (int)actual[i].getType()
                       << ", expected " << (int)expected[i] << "!\n";

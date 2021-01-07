@@ -14,31 +14,36 @@ int main() {
     assert(sfs.peek() == 'a');
     for (unsigned int i = 0; i < str.size(); ++i) {
         if (i == 12) {
+            assert(sfs.getPosition().src_pos == 13);
+            assert(sfs.getPosition().src_line_pos == 0);
             assert(sfs.getPosition().line == 1);
             assert(sfs.getPosition().column == 13);
-            assert(sfs.getPosition().text == "random string");
         }
         if (i == 13) {
+            assert(sfs.getPosition().src_pos == 14);
+            assert(sfs.getPosition().src_line_pos == 14);
             assert(sfs.getPosition().line == 2);
             assert(sfs.getPosition().column == 0);
-            assert(sfs.getPosition().text == "");
         }
         if (i == 15) {
+            assert(sfs.getPosition().src_pos == 16);
+            assert(sfs.getPosition().src_line_pos == 14);
             assert(sfs.getPosition().line == 2);
             assert(sfs.getPosition().column == 2);
-            assert(sfs.getPosition().text == "xd");
         }
         if (i == 41) {
+            assert(sfs.getPosition().src_pos == 42);
+            assert(sfs.getPosition().src_line_pos == 14);
             assert(sfs.getPosition().line == 2);
             assert(sfs.getPosition().column == 28);
-            assert(sfs.getPosition().text == "12345678901234567890some");
         }
         assert(sfs.getChar() == str[i]);
         sfs.advance();
     }
+    assert(sfs.getPosition().src_pos == 42);
+    assert(sfs.getPosition().src_line_pos == 14);
     assert(sfs.getPosition().line == 2);
     assert(sfs.getPosition().column == 28);
-    assert(sfs.getPosition().text == "12345678901234567890some");
     assert(sfs.getChar() == '\0');
     std::cout << "Done!\n";
 
@@ -59,7 +64,6 @@ int main() {
     }
     assert(sff.getPosition().line == 7);
     assert(sff.getPosition().column == 0);
-    assert(sff.getPosition().text == "");
     sff.advance(2);
     assert(sff.getChar() == '\0');
     file.close();
