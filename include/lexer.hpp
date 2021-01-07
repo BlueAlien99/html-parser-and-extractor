@@ -13,8 +13,8 @@ protected:
     AbstractLexer(AbstractSource& source, Token token);
     virtual Token buildToken() = 0;
 
-    Token tryToBuidSpace();
-    Token tryToBuidString();
+    Token tryToBuildSpace();
+    Token tryToBuildString();
 
     AbstractSource& source_;
     Token token_;

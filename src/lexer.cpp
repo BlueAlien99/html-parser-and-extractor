@@ -14,7 +14,7 @@ Token AbstractLexer::buildNextToken() {
 
 Token AbstractLexer::getToken() const { return token_; }
 
-Token AbstractLexer::tryToBuidSpace() {
+Token AbstractLexer::tryToBuildSpace() {
     char c = source_.getChar();
     Position pos = source_.getPosition();
     if (isspace(c)) {
@@ -27,7 +27,7 @@ Token AbstractLexer::tryToBuidSpace() {
     return Token(TokenType::UNDEFINED, pos, std::string(1, c));
 }
 
-Token AbstractLexer::tryToBuidString() {
+Token AbstractLexer::tryToBuildString() {
     char c = source_.getChar();
     Position pos = source_.getPosition();
     if (isalnum(c) || (signed char)c < 0) {
@@ -54,12 +54,12 @@ Token HtmlLexer::buildToken() {
         return Token(TokenType::END_OF_FILE, pos);
     }
 
-    Token space = tryToBuidSpace();
+    Token space = tryToBuildSpace();
     if (space.getType() == TokenType::SPACE) {
         return space;
     }
 
-    Token string = tryToBuidString();
+    Token string = tryToBuildString();
     if (string.getType() == TokenType::STRING) {
         return string;
     }
@@ -151,12 +151,12 @@ Token ConfLexer::buildToken() {
         return Token(TokenType::END_OF_FILE, pos);
     }
 
-    Token space = tryToBuidSpace();
+    Token space = tryToBuildSpace();
     if (space.getType() == TokenType::SPACE) {
         return space;
     }
 
-    Token string = tryToBuidString();
+    Token string = tryToBuildString();
     if (string.getType() == TokenType::STRING) {
         return string;
     }
