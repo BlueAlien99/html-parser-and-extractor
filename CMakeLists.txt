@@ -15,7 +15,9 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 set(PROJECT_CODE
     src/sources.cpp
-    src/lexer.cpp)
+    src/lexer.cpp
+    src/parser.cpp
+    src/node.cpp)
 
 set(CURL_LIBRARY "-lcurl")
 find_package(CURL REQUIRED)
