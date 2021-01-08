@@ -83,7 +83,66 @@ void HtmlParser::buildEndTag() {
 }
 
 void HtmlParser::buildAttributes(std::shared_ptr<Element> elem) {
-    //TODO
+    Token token = lexer_->getToken();
+    while (token.getType() != TokenType::END_TAG && token.getType() != TokenType::END_VOID_TAG &&
+           token.getType() != TokenType::END_OF_FILE) {
+        std::string name = buildAttributeNameOrUnquoted(true);
+        token = lexer_->getToken();
+        if (token.getType() != TokenType::EQUALS) {
+            elem->addAttribute(name, "");
+            continue;
+        }
+        token = lexer_->buildNextTokenNoWs();
+        std::string value;
+        switch (token.getType()) {
+            case TokenType::SINGLE_QUOTE:
+                lexer_->buildNextToken();
+                value = buildAttributeValueQuoted(TokenType::SINGLE_QUOTE);
+                break;
+            case TokenType::DOUBLE_QUOTE:
+                lexer_->buildNextToken();
+                value = buildAttributeValueQuoted(TokenType::DOUBLE_QUOTE);
+                break;
+            default:
+                if (utils::isValidAttrValueUnquotedTT(token.getType())) {
+                    value = buildAttributeNameOrUnquoted(false);
+                } else {
+                    throw UnexpectedToken(token);
+                }
+        }
+        token = lexer_->getToken();
+        if(token.getType() == TokenType::SINGLE_QUOTE || token.getType() == TokenType::DOUBLE_QUOTE){
+            token = lexer_->buildNextTokenNoWs();
+        }
+        elem->addAttribute(name, value);
+    }
+}
+
+std::string HtmlParser::buildAttributeNameOrUnquoted(bool is_name) {
+    std::string name;
+    Token token = lexer_->getToken();
+    while ((is_name && utils::isValidAttrNameTT(token.getType())) ||
+           (!is_name && utils::isValidAttrValueUnquotedTT(token.getType()))) {
+        name += token.getContent();
+        token = lexer_->buildNextToken();
+    }
+    if (token.getType() == TokenType::SPACE) {
+        lexer_->buildNextTokenNoWs();
+    }
+    return name;
+}
+
+std::string HtmlParser::buildAttributeValueQuoted(TokenType quote) {
+    std::string value;
+    Token token = lexer_->getToken();
+    while (utils::isValidAttrValueQuotedTT(token.getType(), quote)) {
+        value += token.getContent();
+        token = lexer_->buildNextToken();
+    }
+    if (token.getType() == TokenType::SPACE) {
+        lexer_->buildNextTokenNoWs();
+    }
+    return value;
 }
 
 void HtmlParser::ignoreUntil(TokenType tokenType) {

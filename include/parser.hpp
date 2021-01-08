@@ -20,6 +20,10 @@ private:
     void buildStartTag();
     void buildEndTag();
     void buildAttributes(std::shared_ptr<Element> elem);
+    std::string buildAttributeNameOrUnquoted(bool is_name);
+    std::string buildAttributeValueQuoted(TokenType quote);
+    // void buildDoctype();
+    // void buildDoctype();
     // void buildDoctype();
     // void buildDoctype();
     // void buildDoctype();
