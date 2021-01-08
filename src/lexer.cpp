@@ -12,6 +12,13 @@ Token AbstractLexer::buildNextToken() {
     return token_;
 }
 
+Token AbstractLexer::buildNextTokenNoWs() {
+    do {
+        buildNextToken();
+    } while (token_.getType() == TokenType::SPACE);
+    return token_;
+}
+
 Token AbstractLexer::getToken() const { return token_; }
 
 Token AbstractLexer::tryToBuildSpace() {

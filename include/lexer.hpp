@@ -7,6 +7,7 @@
 class AbstractLexer {
 public:
     Token buildNextToken();
+    Token buildNextTokenNoWs();
     Token getToken() const;
 
 protected:
