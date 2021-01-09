@@ -18,6 +18,31 @@ bool isVoidElement(std::string name) {
     return false;
 }
 
+bool isReplaceableTagName(std::string name) {
+    static const std::set<std::string> special_names_ = {"title", "textarea"};
+    if (special_names_.find(name) != special_names_.end()) {
+        return true;
+    }
+    return false;
+}
+
+bool isNonReplaceableTagName(std::string name) {
+    static const std::set<std::string> special_names_ = {"script", "style"};
+    if (special_names_.find(name) != special_names_.end()) {
+        return true;
+    }
+    return false;
+}
+
+bool isCharacterReferenceStart(TokenType tokenType) {
+    if (tokenType == TokenType::START_NAMED_CHAR_REF ||
+        tokenType == TokenType::START_DECIMAL_CHAR_REF ||
+        tokenType == TokenType::START_HEX_CHAR_REF) {
+        return true;
+    }
+    return false;
+}
+
 bool isValidAttrNameTT(TokenType tokenType) {
     static const std::set<TokenType> invalid_token_types_ = {
         TokenType::SINGLE_QUOTE, TokenType::DOUBLE_QUOTE,  TokenType::END_TAG,
@@ -45,6 +70,16 @@ bool isValidAttrValueQuotedTT(TokenType tokenType, TokenType quote) {
         TokenType::COMMENT_START, TokenType::START_END_TAG, TokenType::START_DOCTYPE,
         TokenType::START_START_TAG};
     if (invalid_token_types_.find(tokenType) != invalid_token_types_.end() || tokenType == quote) {
+        return false;
+    }
+    return true;
+}
+
+bool isValidNormalCharacterDataTT(TokenType tokenType) {
+    static const std::set<TokenType> invalid_token_types_ = {
+        TokenType::COMMENT_START, TokenType::START_END_TAG, TokenType::START_START_TAG,
+        TokenType::START_DOCTYPE};
+    if (invalid_token_types_.find(tokenType) != invalid_token_types_.end()) {
         return false;
     }
     return true;

@@ -27,15 +27,17 @@ int main(){
     // }
     // std::cout<<std::endl;
 
-    SourceFromFile src("./data/random_file.html");
+    // SourceFromFile src("./data/random_file.html");
+    SourceFromUrl src("https://www.onet.pl/");
     HtmlParser parser(src);
     std::shared_ptr<Element> dom;
     try{
         dom = parser.parse();
-        std::cout<<dom->getAllText();
+        std::cout<<std::endl<<dom->getAllText()<<std::endl;
     } catch(UnexpectedToken &err){
         Position pos = err.getToken().getPosition();
-        std::cout<<"Error at "<<pos.line<<':'<<pos.column<<": "<<src.getTextAtPosition(pos)<<std::endl;
+        std::cout<<std::endl<<"Error at "<<pos.line<<':'<<pos.column<<": "<<src.getTextAtPosition(pos)<<std::endl;
+        std::cout<<"Token Content: "<<err.getToken().getContent()<<std::endl;
     } catch(MismatchedTags &err){
         Position pos = err.getToken().getPosition();
         std::cout<<"Error at "<<pos.line<<':'<<pos.column<<": "<<src.getTextAtPosition(pos)<<std::endl;

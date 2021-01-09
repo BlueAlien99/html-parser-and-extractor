@@ -19,7 +19,7 @@ set(PROJECT_CODE
     src/parser.cpp
     src/node.cpp)
 
-set(CURL_LIBRARY "-lcurl")
+set(CURL_LIBRARY "-lcurl -licuuc")
 find_package(CURL REQUIRED)
 
 include_directories(include ${CURL_INCLUDE_DIR})

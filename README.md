@@ -5,6 +5,8 @@
 **Requires `libcurl4-openssl-dev`**
 ```
 sudo apt install libcurl4-openssl-dev
+sudo apt install libicu-dev
+sudo apt install libunistring-dev
 ```
 
 ```

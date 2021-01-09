@@ -4,11 +4,14 @@
 
 #include "token.hpp"
 
+#include <iostream>
+
 AbstractLexer::AbstractLexer(AbstractSource& source, Token token)
     : source_(source), token_(token) {}
 
 Token AbstractLexer::buildNextToken() {
     token_ = buildToken();
+    std::cout<<token_.getContent();
     return token_;
 }
 
