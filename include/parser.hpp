@@ -1,24 +1,26 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
-#include "sources.hpp"
-#include "node.hpp"
+#include <memory>
+#include <vector>
+
 #include "lexer.hpp"
+#include "node.hpp"
+#include "sources.hpp"
 #include "token.hpp"
 
-#include <vector>
-#include <memory>
-
-class HtmlParser{
+class HtmlParser {
 public:
     HtmlParser(AbstractSource& source);
     std::shared_ptr<Element> parse();
+    std::shared_ptr<Element> parseSafe(AbstractSource& source);
+    std::vector<std::shared_ptr<Element> > getOpenNodes();
 
 private:
     void parseNormalContent();
     void parseReplaceableContent();
     void parseNonReplaceableContent();
-    
+
     void buildDoctype();
     void buildComment();
     void buildStartTag();

@@ -11,7 +11,7 @@ AbstractLexer::AbstractLexer(AbstractSource& source, Token token)
 
 Token AbstractLexer::buildNextToken() {
     token_ = buildToken();
-    std::cout<<token_.getContent();
+    // std::cout<<token_.getContent();
     return token_;
 }
 

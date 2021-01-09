@@ -1,0 +1,6 @@
+<script>
+    document.getElementById("demo").innerHTML = "Hello JavaScript!";
+    <div> elements should be ignored </div>
+    <!-- comment start should be ignored
+</script>
+<p>ok</p>

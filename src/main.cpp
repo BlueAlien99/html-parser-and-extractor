@@ -30,18 +30,9 @@ int main(){
     // SourceFromFile src("./data/random_file.html");
     SourceFromUrl src("https://www.onet.pl/");
     HtmlParser parser(src);
-    std::shared_ptr<Element> dom;
-    try{
-        dom = parser.parse();
+    std::shared_ptr<Element> dom = parser.parseSafe(src);
+    if(dom != nullptr){
         std::cout<<std::endl<<dom->getAllText()<<std::endl;
-    } catch(UnexpectedToken &err){
-        Position pos = err.getToken().getPosition();
-        std::cout<<std::endl<<"Error at "<<pos.line<<':'<<pos.column<<": "<<src.getTextAtPosition(pos)<<std::endl;
-        std::cout<<"Token Content: "<<err.getToken().getContent()<<std::endl;
-    } catch(MismatchedTags &err){
-        Position pos = err.getToken().getPosition();
-        std::cout<<"Error at "<<pos.line<<':'<<pos.column<<": "<<src.getTextAtPosition(pos)<<std::endl;
-        std::cout<<"Expected "<<err.getExpected()<<std::endl;
     }
 
     // while(char c = src2.getNextChar()){
