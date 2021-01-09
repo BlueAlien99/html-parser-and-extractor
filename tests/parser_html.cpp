@@ -8,8 +8,8 @@
 #define BOOST_TEST_MODULE parser_html
 #include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_CASE(script_test) {
-    SourceFromFile src("./data/parser_html/script_test");
+BOOST_AUTO_TEST_CASE(script) {
+    SourceFromFile src("./data/parser_html/script");
     HtmlParser parser(src);
     std::shared_ptr<Element> dom = parser.parseSafe(src);
     BOOST_REQUIRE(dom != nullptr);
@@ -22,8 +22,8 @@ BOOST_AUTO_TEST_CASE(script_test) {
     BOOST_CHECK(nodes[1]->getAllText() == "ok");
 }
 
-BOOST_AUTO_TEST_CASE(textarea_test) {
-    SourceFromFile src("./data/parser_html/textarea_test");
+BOOST_AUTO_TEST_CASE(textarea) {
+    SourceFromFile src("./data/parser_html/textarea");
     HtmlParser parser(src);
     std::shared_ptr<Element> dom = parser.parseSafe(src);
     BOOST_REQUIRE(dom != nullptr);
