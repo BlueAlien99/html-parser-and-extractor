@@ -141,3 +141,23 @@ BOOST_AUTO_TEST_CASE(big_page) {
     BOOST_CHECK(html->getAllText() == "Webcam Strem Preview UP DOWN LEFT RIGHT ");
     BOOST_CHECK(html->getImmediateText() == "");
 }
+
+BOOST_AUTO_TEST_CASE(random_page) {
+    SourceFromFile src("./data/random_file.html");
+    HtmlParser parser(src);
+    std::shared_ptr<Element> dom = parser.parseSafe(src);
+    BOOST_REQUIRE(dom != nullptr);
+    BOOST_CHECK(parser.getOpenNodes().back()->getName() == "_dom_");
+    auto nodes = dom->getHtmlNodes();
+    BOOST_CHECK(nodes.size() == 1);
+    nodes = nodes[0]->getHtmlNodes();
+    auto body = nodes[1];
+    nodes = body->getHtmlNodes();
+    BOOST_CHECK(nodes.size() == 6);
+    BOOST_CHECK(body->getImmediateText() == "some t3xt -> test . code @ 9th line żółć ");
+    BOOST_CHECK(body->getAllText() == "some t3xt -> test . code @ 9th line żółć Google \n& Ą Ą ");
+    BOOST_CHECK(nodes[0]->getAttributeValue("href") == "https://google.com");
+    BOOST_CHECK(nodes[1]->getAttributeValue("data-attr") == "yes");
+    BOOST_CHECK(nodes[1]->getAttributeValue("data-attr2") == "no");
+    BOOST_CHECK(nodes[5]->getAttributeValue("style") == "color: #fff;");
+}
