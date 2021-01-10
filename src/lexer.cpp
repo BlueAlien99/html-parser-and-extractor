@@ -1,10 +1,9 @@
 #include "lexer.hpp"
 
+#include <iostream>
 #include <string>
 
 #include "token.hpp"
-
-#include <iostream>
 
 AbstractLexer::AbstractLexer(AbstractSource& source, Token token)
     : source_(source), token_(token) {}

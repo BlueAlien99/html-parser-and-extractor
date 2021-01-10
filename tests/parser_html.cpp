@@ -1,7 +1,7 @@
 #include "exceptions.hpp"
+#include "html_parser.hpp"
 #include "lexer.hpp"
 #include "node.hpp"
-#include "parser.hpp"
 #include "sources.hpp"
 #include "token.hpp"
 
@@ -11,7 +11,7 @@
 BOOST_AUTO_TEST_CASE(script) {
     SourceFromFile src("./data/parser_html/script");
     HtmlParser parser(src);
-    std::shared_ptr<Element> dom = parser.parseSafe(src);
+    std::shared_ptr<HtmlElement> dom = parser.parseSafe(src);
     BOOST_REQUIRE(dom != nullptr);
     BOOST_CHECK(parser.getOpenNodes().back()->getName() == "_dom_");
     auto nodes = dom->getHtmlNodes();
@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(script) {
 BOOST_AUTO_TEST_CASE(textarea) {
     SourceFromFile src("./data/parser_html/textarea");
     HtmlParser parser(src);
-    std::shared_ptr<Element> dom = parser.parseSafe(src);
+    std::shared_ptr<HtmlElement> dom = parser.parseSafe(src);
     BOOST_REQUIRE(dom != nullptr);
     BOOST_CHECK(parser.getOpenNodes().back()->getName() == "_dom_");
     auto nodes = dom->getHtmlNodes();
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(textarea) {
 BOOST_AUTO_TEST_CASE(character_reference) {
     SourceFromFile src("./data/parser_html/character_reference");
     HtmlParser parser(src);
-    std::shared_ptr<Element> dom = parser.parseSafe(src);
+    std::shared_ptr<HtmlElement> dom = parser.parseSafe(src);
     BOOST_REQUIRE(dom != nullptr);
     BOOST_CHECK(parser.getOpenNodes().back()->getName() == "_dom_");
     auto nodes = dom->getHtmlNodes();
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(character_reference) {
 BOOST_AUTO_TEST_CASE(attributes) {
     SourceFromFile src("./data/parser_html/attributes");
     HtmlParser parser(src);
-    std::shared_ptr<Element> dom = parser.parseSafe(src);
+    std::shared_ptr<HtmlElement> dom = parser.parseSafe(src);
     BOOST_REQUIRE(dom != nullptr);
     BOOST_CHECK(parser.getOpenNodes().back()->getName() == "_dom_");
     auto nodes = dom->getHtmlNodes();
@@ -72,24 +72,26 @@ BOOST_AUTO_TEST_CASE(attributes) {
     BOOST_CHECK(nodes[0]->getAttributeValue("no_val-da<sh") == "");
     BOOST_CHECK(nodes[1]->getAttributeValue("unq") == "__--__");
     BOOST_CHECK(nodes[1]->getAttributeValue("__--__") == "");
-    BOOST_CHECK(nodes[2]->getAttributeValue("tag") == "li/>");    
+    BOOST_CHECK(nodes[2]->getAttributeValue("tag") == "li/>");
 }
 
 BOOST_AUTO_TEST_CASE(spaces) {
     SourceFromFile src("./data/parser_html/spaces");
     HtmlParser parser(src);
-    std::shared_ptr<Element> dom = parser.parseSafe(src);
+    std::shared_ptr<HtmlElement> dom = parser.parseSafe(src);
     BOOST_REQUIRE(dom != nullptr);
     BOOST_CHECK(parser.getOpenNodes().back()->getName() == "_dom_");
     auto nodes = dom->getHtmlNodes();
     BOOST_CHECK(nodes.size() == 1);
-    BOOST_CHECK(nodes[0]->getAllText() == "somebodyonce told me\nthe world is gonna roll me \nI ain't the sharpest tool in the shed ");
+    BOOST_CHECK(nodes[0]->getAllText() ==
+                "somebodyonce told me\nthe world is gonna roll me \nI ain't the sharpest tool in "
+                "the shed ");
 }
 
 BOOST_AUTO_TEST_CASE(misnested_tags) {
     SourceFromFile src("./data/parser_html/misnested_tags");
     HtmlParser parser(src);
-    std::shared_ptr<Element> dom = parser.parseSafe(src);
+    std::shared_ptr<HtmlElement> dom = parser.parseSafe(src);
     BOOST_REQUIRE(dom != nullptr);
     BOOST_CHECK(parser.getOpenNodes().back()->getName() == "_dom_");
     auto nodes = dom->getHtmlNodes();
@@ -116,7 +118,7 @@ BOOST_AUTO_TEST_CASE(misnested_tags) {
 BOOST_AUTO_TEST_CASE(big_page) {
     SourceFromFile src("./data/parser_html/big_page");
     HtmlParser parser(src);
-    std::shared_ptr<Element> dom = parser.parseSafe(src);
+    std::shared_ptr<HtmlElement> dom = parser.parseSafe(src);
     BOOST_REQUIRE(dom != nullptr);
     BOOST_CHECK(parser.getOpenNodes().back()->getName() == "_dom_");
     auto nodes = dom->getHtmlNodes();
@@ -145,7 +147,7 @@ BOOST_AUTO_TEST_CASE(big_page) {
 BOOST_AUTO_TEST_CASE(random_page) {
     SourceFromFile src("./data/random_file.html");
     HtmlParser parser(src);
-    std::shared_ptr<Element> dom = parser.parseSafe(src);
+    std::shared_ptr<HtmlElement> dom = parser.parseSafe(src);
     BOOST_REQUIRE(dom != nullptr);
     BOOST_CHECK(parser.getOpenNodes().back()->getName() == "_dom_");
     auto nodes = dom->getHtmlNodes();

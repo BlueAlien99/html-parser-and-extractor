@@ -34,9 +34,9 @@ private:
     NodeType type_;
 };
 
-class Element : public Node {
+class HtmlElement : public Node {
 public:
-    Element(std::string name) : Node(NodeType::HTML_ELEMENT), name_(std::move(name)) {}
+    HtmlElement(std::string name) : Node(NodeType::HTML_ELEMENT), name_(std::move(name)) {}
 
     void addAttribute(const std::string& name, const std::string& value) override;
     void insertNode(std::shared_ptr<Node> node) override;

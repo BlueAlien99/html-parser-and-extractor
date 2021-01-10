@@ -1,4 +1,4 @@
-#include "parser.hpp"
+#include "html_parser.hpp"
 
 #include <unicode/unistr.h>
 
@@ -9,11 +9,11 @@
 
 HtmlParser::HtmlParser(AbstractSource& source) {
     lexer_ = std::make_unique<HtmlLexer>(source);
-    dom_ = std::make_shared<Element>("_dom_");
+    dom_ = std::make_shared<HtmlElement>("_dom_");
     open_nodes_.push_back(dom_);
 }
 
-std::shared_ptr<Element> HtmlParser::parse() {
+std::shared_ptr<HtmlElement> HtmlParser::parse() {
     lexer_->buildNextTokenNoWs();
     while (lexer_->getToken().getType() != TokenType::END_OF_FILE) {
         Token token = lexer_->getToken();
@@ -43,7 +43,7 @@ std::shared_ptr<Element> HtmlParser::parse() {
     return dom_;
 }
 
-std::shared_ptr<Element> HtmlParser::parseSafe(AbstractSource& source) {
+std::shared_ptr<HtmlElement> HtmlParser::parseSafe(AbstractSource& source) {
     try {
         return parse();
     } catch (UnexpectedToken& err) {
@@ -62,7 +62,7 @@ std::shared_ptr<Element> HtmlParser::parseSafe(AbstractSource& source) {
     }
 }
 
-std::vector<std::shared_ptr<Element> > HtmlParser::getOpenNodes() { return open_nodes_; }
+std::vector<std::shared_ptr<HtmlElement> > HtmlParser::getOpenNodes() { return open_nodes_; }
 
 void HtmlParser::parseNormalContent() {
     Token token = lexer_->getToken();
@@ -166,7 +166,7 @@ void HtmlParser::buildComment() {
 void HtmlParser::buildStartTag() {
     Token token = lexer_->buildNextTokenNoWs();
     if (token.getType() == TokenType::STRING) {
-        std::shared_ptr<Element> elem = std::make_shared<Element>(token.getContent());
+        std::shared_ptr<HtmlElement> elem = std::make_shared<HtmlElement>(token.getContent());
         open_nodes_.back()->insertNode(elem);
         lexer_->buildNextTokenNoWs();
 
@@ -210,7 +210,7 @@ void HtmlParser::buildEndTag() {
     throw UnexpectedToken(token);
 }
 
-void HtmlParser::buildAttributes(std::shared_ptr<Element> elem) {
+void HtmlParser::buildAttributes(std::shared_ptr<HtmlElement> elem) {
     Token token = lexer_->getToken();
     while (token.getType() != TokenType::END_TAG && token.getType() != TokenType::END_VOID_TAG &&
            token.getType() != TokenType::END_OF_FILE) {

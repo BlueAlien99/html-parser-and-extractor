@@ -26,7 +26,7 @@ include_directories(include ${CURL_INCLUDE_DIR})
 add_library(project-lib 
     src/sources.cpp
     src/lexer.cpp
-    src/parser.cpp
+    src/html_parser.cpp
     src/node.cpp
     src/utils.cpp)
 

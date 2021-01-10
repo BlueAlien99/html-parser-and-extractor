@@ -2,31 +2,33 @@
 
 #include "utils.hpp"
 
-void Element::addAttribute(const std::string& name, const std::string& value) {
+void HtmlElement::addAttribute(const std::string& name, const std::string& value) {
     attributes_.insert_or_assign(name, value);
 }
 
-void Element::insertNode(std::shared_ptr<Node> node) { nodes_.push_back(node); }
+void HtmlElement::insertNode(std::shared_ptr<Node> node) { nodes_.push_back(node); }
 
-std::string Element::getName() const { return name_; }
+std::string HtmlElement::getName() const { return name_; }
 
-std::unordered_map<std::string, std::string> Element::getAttributes() const { return attributes_; }
+std::unordered_map<std::string, std::string> HtmlElement::getAttributes() const {
+    return attributes_;
+}
 
-std::vector<std::shared_ptr<Node> > Element::getNodes() const { return nodes_; }
+std::vector<std::shared_ptr<Node> > HtmlElement::getNodes() const { return nodes_; }
 
-std::vector<std::shared_ptr<Node> > Element::getTextNodes() const {
+std::vector<std::shared_ptr<Node> > HtmlElement::getTextNodes() const {
     return filterNodes(NodeType::TEXT_CONTENT);
 }
 
-std::vector<std::shared_ptr<Node> > Element::getHtmlNodes() const {
+std::vector<std::shared_ptr<Node> > HtmlElement::getHtmlNodes() const {
     return filterNodes(NodeType::HTML_ELEMENT);
 }
 
-std::string Element::getAttributeValue(const std::string& name) const {
+std::string HtmlElement::getAttributeValue(const std::string& name) const {
     return attributes_.at(name);
 }
 
-bool Element::doesAttributeExist(const std::string& name) const {
+bool HtmlElement::doesAttributeExist(const std::string& name) const {
     auto attr = attributes_.find(name);
     if (attr != attributes_.end()) {
         return true;
@@ -34,11 +36,11 @@ bool Element::doesAttributeExist(const std::string& name) const {
     return false;
 }
 
-std::string Element::getImmediateText() const { return getText(false); }
+std::string HtmlElement::getImmediateText() const { return getText(false); }
 
-std::string Element::getAllText() const { return getText(true); }
+std::string HtmlElement::getAllText() const { return getText(true); }
 
-std::string Element::getText(bool all) const {
+std::string HtmlElement::getText(bool all) const {
     if (name_ == "br") {
         return "\n";
     }
@@ -59,7 +61,7 @@ std::string Element::getText(bool all) const {
     return text;
 }
 
-std::vector<std::shared_ptr<Node> > Element::filterNodes(NodeType type) const {
+std::vector<std::shared_ptr<Node> > HtmlElement::filterNodes(NodeType type) const {
     std::vector<std::shared_ptr<Node> > ret;
     for (std::shared_ptr<Node> node : nodes_) {
         if (node->getType() == type) {

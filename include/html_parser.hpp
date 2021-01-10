@@ -1,5 +1,5 @@
-#ifndef PARSER_HPP
-#define PARSER_HPP
+#ifndef HTML_PARSER_HPP
+#define HTML_PARSER_HPP
 
 #include <memory>
 #include <vector>
@@ -12,9 +12,9 @@
 class HtmlParser {
 public:
     HtmlParser(AbstractSource& source);
-    std::shared_ptr<Element> parse();
-    std::shared_ptr<Element> parseSafe(AbstractSource& source);
-    std::vector<std::shared_ptr<Element> > getOpenNodes();
+    std::shared_ptr<HtmlElement> parse();
+    std::shared_ptr<HtmlElement> parseSafe(AbstractSource& source);
+    std::vector<std::shared_ptr<HtmlElement> > getOpenNodes();
 
 private:
     void parseNormalContent();
@@ -25,7 +25,7 @@ private:
     void buildComment();
     void buildStartTag();
     void buildEndTag();
-    void buildAttributes(std::shared_ptr<Element> elem);
+    void buildAttributes(std::shared_ptr<HtmlElement> elem);
     std::string buildAttributeNameOrUnquoted(bool is_name);
     std::string buildAttributeValueQuoted(TokenType quote);
     std::string buildCharacterReference();
@@ -33,8 +33,8 @@ private:
     void ignoreUntil(TokenType tokenType);
 
     std::unique_ptr<HtmlLexer> lexer_;
-    std::shared_ptr<Element> dom_;
-    std::vector<std::shared_ptr<Element> > open_nodes_;
+    std::shared_ptr<HtmlElement> dom_;
+    std::vector<std::shared_ptr<HtmlElement> > open_nodes_;
 };
 
 #endif
