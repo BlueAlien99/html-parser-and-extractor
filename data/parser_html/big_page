@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Strem Preview</title>
+    <style>
+        body{
+            width: 100vw;
+            height: 100vh;
+            padding: 0;
+            margin: 0;
+            background-color: #616161;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            align-content: stretch;
+            justify-content: stretch;
+        }
+        #up{
+            grid-row: 1;
+            grid-column: 2;
+        }
+        #down{
+            grid-row: 3;
+            grid-column: 2;
+        }
+        #left{
+            grid-row: 2;
+            grid-column: 1;
+        }
+        #right{
+            grid-row: 2;
+            grid-column: 3;
+        }
+        #up, #down, #left, #right{
+            display: grid;
+            align-content: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: bold;
+            font-family: monospace;
+        }
+        .active{
+            background-color: chocolate;
+        }
+    </style>
+</head>
+<body>
+    <div id="up">UP</div>
+    <div id="down">DOWN</div>
+    <div id="left">LEFT</div>
+    <div id="right">RIGHT</div>
+
+    <script>
+        const timeout = 50;
+
+        const up = document.querySelector('#up');
+        const down = document.querySelector('#down');
+        const left = document.querySelector('#left');
+        const right = document.querySelector('#right');
+
+        let ltUp, ltDown, ltLeft, ltRight;
+
+        window.addEventListener('keydown', e => {
+            if(e.key == 'ArrowUp'){
+                up.classList.add('active');
+                clearTimeout(ltUp);
+                ltUp = setTimeout(() => up.classList.remove('active'), timeout);
+            }
+            else if(e.key == 'ArrowDown'){
+                down.classList.add('active');
+                clearTimeout(ltDown);
+                ltDown = setTimeout(() => down.classList.remove('active'), timeout);
+            }
+            else if(e.key == 'ArrowLeft'){
+                left.classList.add('active');
+                clearTimeout(ltLeft);
+                ltLeft = setTimeout(() => left.classList.remove('active'), timeout);
+            }
+            else if(e.key == 'ArrowRight'){
+                right.classList.add('active');
+                clearTimeout(ltRight);
+                ltRight = setTimeout(() => right.classList.remove('active'), timeout);
+            }
+        });
+    </script>
+</body>
+</html>

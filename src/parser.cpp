@@ -37,25 +37,27 @@ std::shared_ptr<Element> HtmlParser::parse() {
                 buildEndTag();
                 break;
             default:
-                // throw UnexpectedToken(lexer_->getToken());
                 parseNormalContent();
         }
     }
     return dom_;
 }
 
-std::shared_ptr<Element> HtmlParser::parseSafe(AbstractSource& source){
-    try{
+std::shared_ptr<Element> HtmlParser::parseSafe(AbstractSource& source) {
+    try {
         return parse();
-    } catch(UnexpectedToken &err){
+    } catch (UnexpectedToken& err) {
         Position pos = err.getToken().getPosition();
-        std::cout<<std::endl<<"Error at "<<pos.line<<':'<<pos.column<<": "<<source.getTextAtPosition(pos)<<std::endl;
-        std::cout<<"Token Content: "<<err.getToken().getContent()<<std::endl;
+        std::cout << std::endl
+                  << "Error at " << pos.line << ':' << pos.column << ": "
+                  << source.getTextAtPosition(pos) << std::endl;
+        std::cout << "Token Content: " << err.getToken().getContent() << std::endl;
         return nullptr;
-    } catch(MismatchedTags &err){
+    } catch (MismatchedTags& err) {
         Position pos = err.getToken().getPosition();
-        std::cout<<"Error at "<<pos.line<<':'<<pos.column<<": "<<source.getTextAtPosition(pos)<<std::endl;
-        std::cout<<"Expected "<<err.getExpected()<<std::endl;
+        std::cout << "Error at " << pos.line << ':' << pos.column << ": "
+                  << source.getTextAtPosition(pos) << std::endl;
+        std::cout << "Expected " << err.getExpected() << std::endl;
         return nullptr;
     }
 }
@@ -191,8 +193,11 @@ void HtmlParser::buildEndTag() {
     if (token.getType() == TokenType::STRING) {
         std::string name = token.getContent();
         std::string expected = open_nodes_.back()->getName();
+        std::string misnested = open_nodes_[open_nodes_.size() - 2]->getName();
         if (expected == name) {
             open_nodes_.pop_back();
+        } else if (misnested == name) {
+            open_nodes_.erase(open_nodes_.begin() + open_nodes_.size() - 2);
         } else {
             throw MismatchedTags(token, expected);
         }
@@ -265,7 +270,7 @@ std::string HtmlParser::buildAttributeValueQuoted(TokenType quote) {
     }
     if (token.getType() == quote) {
         lexer_->buildNextTokenNoWs();
-    } else{
+    } else {
         throw UnexpectedToken(token);
     }
     return value;
@@ -302,10 +307,10 @@ std::string HtmlParser::buildCharacterReference() {
             std::string chr;
             icu::UnicodeString uni_str((UChar32)val);
             uni_str.toUTF8String(chr);
-            if(chr != ""){
+            if (chr != "") {
                 success = true;
                 ret = chr;
-            } else{
+            } else {
                 ret += token.getContent();
             }
         } else if (type == TokenType::START_NAMED_CHAR_REF) {
@@ -324,7 +329,7 @@ std::string HtmlParser::buildCharacterReference() {
         }
         token = lexer_->buildNextToken();
         if (token.getType() == TokenType::END_CHAR_REF) {
-            if(!success){
+            if (!success) {
                 ret += token.getContent();
             }
             lexer_->buildNextToken();

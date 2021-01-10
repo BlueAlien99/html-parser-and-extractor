@@ -85,3 +85,59 @@ BOOST_AUTO_TEST_CASE(spaces) {
     BOOST_CHECK(nodes.size() == 1);
     BOOST_CHECK(nodes[0]->getAllText() == "somebodyonce told me\nthe world is gonna roll me \nI ain't the sharpest tool in the shed ");
 }
+
+BOOST_AUTO_TEST_CASE(misnested_tags) {
+    SourceFromFile src("./data/parser_html/misnested_tags");
+    HtmlParser parser(src);
+    std::shared_ptr<Element> dom = parser.parseSafe(src);
+    BOOST_REQUIRE(dom != nullptr);
+    BOOST_CHECK(parser.getOpenNodes().back()->getName() == "_dom_");
+    auto nodes = dom->getHtmlNodes();
+    BOOST_CHECK(nodes.size() == 1);
+    auto p = nodes[0];
+    BOOST_CHECK(p->getName() == "p");
+    nodes = p->getHtmlNodes();
+    BOOST_CHECK(nodes.size() == 1);
+    auto b = nodes[0];
+    BOOST_CHECK(b->getName() == "b");
+    nodes = b->getHtmlNodes();
+    BOOST_CHECK(nodes.size() == 1);
+    auto i = nodes[0];
+    BOOST_CHECK(i->getName() == "i");
+    BOOST_CHECK(i->getHtmlNodes().size() == 0);
+    BOOST_CHECK(i->getAllText() == "bar baz");
+    BOOST_CHECK(i->getImmediateText() == "bar baz");
+    BOOST_CHECK(b->getAllText() == "foo bar baz");
+    BOOST_CHECK(b->getImmediateText() == "foo ");
+    BOOST_CHECK(p->getAllText() == "foo bar baz ");
+    BOOST_CHECK(p->getImmediateText() == "");
+}
+
+BOOST_AUTO_TEST_CASE(big_page) {
+    SourceFromFile src("./data/parser_html/big_page");
+    HtmlParser parser(src);
+    std::shared_ptr<Element> dom = parser.parseSafe(src);
+    BOOST_REQUIRE(dom != nullptr);
+    BOOST_CHECK(parser.getOpenNodes().back()->getName() == "_dom_");
+    auto nodes = dom->getHtmlNodes();
+    BOOST_CHECK(nodes.size() == 1);
+    auto html = nodes[0];
+    BOOST_CHECK(html->getName() == "html");
+    nodes = html->getHtmlNodes();
+    BOOST_CHECK(nodes.size() == 2);
+    auto head = nodes[0];
+    auto body = nodes[1];
+    BOOST_CHECK(head->getName() == "head");
+    nodes = head->getHtmlNodes();
+    BOOST_CHECK(nodes[3]->getName() == "style");
+    BOOST_CHECK(nodes[3]->getNodes().empty());
+    BOOST_CHECK(body->getName() == "body");
+    nodes = body->getHtmlNodes();
+    BOOST_CHECK(nodes[4]->getName() == "script");
+    BOOST_CHECK(nodes[4]->getNodes().empty());
+    BOOST_CHECK(nodes.size() == 5);
+    BOOST_CHECK(nodes[0]->getAttributeValue("id") == "up");
+    BOOST_CHECK(nodes[3]->getAttributeValue("id") == "right");
+    BOOST_CHECK(html->getAllText() == "Webcam Strem Preview UP DOWN LEFT RIGHT ");
+    BOOST_CHECK(html->getImmediateText() == "");
+}
