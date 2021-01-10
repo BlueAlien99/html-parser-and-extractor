@@ -27,7 +27,9 @@ add_library(project-lib
     src/sources.cpp
     src/lexer.cpp
     src/html_parser.cpp
+    src/conf_parser.cpp
     src/node.cpp
+    src/conf_object.cpp
     src/utils.cpp)
 
 target_link_libraries(project-lib ${CURL_LIBRARIES})
@@ -37,12 +39,14 @@ add_executable(lexer_html tests/lexer_html.cpp)
 add_executable(lexer_conf tests/lexer_conf.cpp)
 add_executable(test_sources tests/test_sources.cpp)
 add_executable(parser_html tests/parser_html.cpp)
+add_executable(parser_conf tests/parser_conf.cpp)
 
 target_link_libraries(run project-lib)
 target_link_libraries(lexer_html project-lib)
 target_link_libraries(lexer_conf project-lib)
 target_link_libraries(test_sources project-lib)
 target_link_libraries(parser_html project-lib ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(parser_conf project-lib ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
 set(CMAKE_MODULE_PATH ./CMakeModules)
 if(CMAKE_COMPILER_IS_GNUCXX)

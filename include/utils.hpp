@@ -16,6 +16,8 @@ bool isValidAttrValueUnquotedTT(TokenType tokenType);
 bool isValidAttrValueQuotedTT(TokenType tokenType, TokenType quote);
 bool isValidNormalCharacterDataTT(TokenType tokenType);
 
+bool isValidClassOrIdTT(TokenType tokenType);
+
 }  // namespace utils
 
 #endif

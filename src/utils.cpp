@@ -46,7 +46,8 @@ bool isValidAttrNameTT(TokenType tokenType) {
     static const std::set<TokenType> invalid_token_types_ = {
         TokenType::SINGLE_QUOTE, TokenType::DOUBLE_QUOTE,  TokenType::END_TAG,
         TokenType::END_VOID_TAG, TokenType::SLASH,         TokenType::EQUALS,
-        TokenType::COMMENT_END,  TokenType::START_END_TAG, TokenType::SPACE};
+        TokenType::COMMENT_END,  TokenType::START_END_TAG, TokenType::SPACE,
+        TokenType::END_OF_FILE};
     if (invalid_token_types_.find(tokenType) != invalid_token_types_.end()) {
         return false;
     }
@@ -83,6 +84,18 @@ bool isValidNormalCharacterDataTT(TokenType tokenType) {
         return false;
     }
     return true;
+}
+
+bool isValidClassOrIdTT(TokenType tokenType) {
+    static const std::set<TokenType> valid_token_types_ = {
+        TokenType::STRING,
+        TokenType::DASH,
+        TokenType::UNDERSCORE,
+    };
+    if (valid_token_types_.find(tokenType) != valid_token_types_.end()) {
+        return true;
+    }
+    return false;
 }
 
 }  // namespace utils
