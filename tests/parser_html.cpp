@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(character_reference) {
     BOOST_CHECK(nodes[0]->getAllText() == " &  -  >");
     BOOST_CHECK(nodes[1]->getAllText() == "");
     BOOST_CHECK(nodes[2]->getAllText() == "> < Ą Ą");
-    BOOST_CHECK(nodes[3]->getAllText() == "&xd; & @ &#123456789; &#abc; ? &#xZ; &#xZ ");
+    BOOST_CHECK(nodes[3]->getAllText() == "&xd; & @ &#123456789; &#abc; ? &#xZ; &#xZ & &; &xd xd ");
 }
 
 BOOST_AUTO_TEST_CASE(attributes) {

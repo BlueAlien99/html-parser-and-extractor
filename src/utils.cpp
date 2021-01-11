@@ -56,10 +56,10 @@ bool isValidAttrNameTT(TokenType tokenType) {
 
 bool isValidAttrValueUnquotedTT(TokenType tokenType) {
     static const std::set<TokenType> invalid_token_types_ = {
-        TokenType::SINGLE_QUOTE,  TokenType::DOUBLE_QUOTE,   TokenType::END_TAG,
-        TokenType::END_VOID_TAG,  TokenType::EQUALS,         TokenType::COMMENT_END,
-        TokenType::SPACE,         TokenType::COMMENT_START,  TokenType::START_END_TAG,
-        TokenType::START_DOCTYPE, TokenType::START_START_TAG};
+        TokenType::SINGLE_QUOTE,  TokenType::DOUBLE_QUOTE,    TokenType::END_TAG,
+        TokenType::END_VOID_TAG,  TokenType::EQUALS,          TokenType::COMMENT_END,
+        TokenType::SPACE,         TokenType::COMMENT_START,   TokenType::START_END_TAG,
+        TokenType::START_DOCTYPE, TokenType::START_START_TAG, TokenType::END_OF_FILE};
     if (invalid_token_types_.find(tokenType) != invalid_token_types_.end()) {
         return false;
     }
@@ -69,7 +69,7 @@ bool isValidAttrValueUnquotedTT(TokenType tokenType) {
 bool isValidAttrValueQuotedTT(TokenType tokenType, TokenType quote) {
     static const std::set<TokenType> invalid_token_types_ = {
         TokenType::COMMENT_START, TokenType::START_END_TAG, TokenType::START_DOCTYPE,
-        TokenType::START_START_TAG};
+        TokenType::START_START_TAG, TokenType::END_OF_FILE};
     if (invalid_token_types_.find(tokenType) != invalid_token_types_.end() || tokenType == quote) {
         return false;
     }
@@ -79,7 +79,7 @@ bool isValidAttrValueQuotedTT(TokenType tokenType, TokenType quote) {
 bool isValidNormalCharacterDataTT(TokenType tokenType) {
     static const std::set<TokenType> invalid_token_types_ = {
         TokenType::COMMENT_START, TokenType::START_END_TAG, TokenType::START_START_TAG,
-        TokenType::START_DOCTYPE};
+        TokenType::START_DOCTYPE, TokenType::END_OF_FILE};
     if (invalid_token_types_.find(tokenType) != invalid_token_types_.end()) {
         return false;
     }
