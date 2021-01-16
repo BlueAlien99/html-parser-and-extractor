@@ -7,7 +7,10 @@ ConfObject::ConfObject(const ConfObject& confObject) {
     attributes_ = confObject.attributes_;
     attribute_values_ = confObject.attribute_values_;
     ranges_ = confObject.ranges_;
-    next_ = std::make_unique<ConfObject>(*confObject.next_);
+    next_ = nullptr;
+    if (confObject.next_ != nullptr) {
+        next_ = std::make_unique<ConfObject>(*confObject.next_);
+    }
 }
 
 void ConfObject::setNextConf(std::unique_ptr<ConfObject> next) { next_ = std::move(next); }
