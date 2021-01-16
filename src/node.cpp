@@ -6,7 +6,7 @@ void HtmlElement::addAttribute(const std::string& name, const std::string& value
     attributes_.insert_or_assign(name, value);
 }
 
-void HtmlElement::insertNode(std::shared_ptr<Node> node) { nodes_.push_back(node); }
+void HtmlElement::insertNode(std::unique_ptr<Node> node) { nodes_.push_back(std::move(node)); }
 
 std::string HtmlElement::getName() const { return name_; }
 
@@ -14,13 +14,19 @@ std::unordered_map<std::string, std::string> HtmlElement::getAttributes() const 
     return attributes_;
 }
 
-std::vector<std::shared_ptr<Node> > HtmlElement::getNodes() const { return nodes_; }
+std::vector<std::unique_ptr<Node> > HtmlElement::getNodes() const {
+    std::vector<std::unique_ptr<Node> > cp;
+    for (const auto& node : nodes_) {
+        cp.push_back(node->clone());
+    }
+    return cp;
+}
 
-std::vector<std::shared_ptr<Node> > HtmlElement::getTextNodes() const {
+std::vector<std::unique_ptr<Node> > HtmlElement::getTextNodes() const {
     return filterNodes(NodeType::TEXT_CONTENT);
 }
 
-std::vector<std::shared_ptr<Node> > HtmlElement::getHtmlNodes() const {
+std::vector<std::unique_ptr<Node> > HtmlElement::getHtmlNodes() const {
     return filterNodes(NodeType::HTML_ELEMENT);
 }
 
@@ -45,7 +51,7 @@ std::string HtmlElement::getText(bool all) const {
         return "\n";
     }
     std::string text;
-    for (std::shared_ptr<Node> node : nodes_) {
+    for (const std::unique_ptr<Node>& node : nodes_) {
         if (node->getType() == NodeType::TEXT_CONTENT || all) {
             std::string node_text = node->getAllText();
             if (!utils::isReplaceableTagName(name_)) {
@@ -61,11 +67,22 @@ std::string HtmlElement::getText(bool all) const {
     return text;
 }
 
-std::vector<std::shared_ptr<Node> > HtmlElement::filterNodes(NodeType type) const {
-    std::vector<std::shared_ptr<Node> > ret;
-    for (std::shared_ptr<Node> node : nodes_) {
+std::unique_ptr<Node> HtmlElement::clone() const {
+    std::unique_ptr<Node> cp = std::make_unique<HtmlElement>(name_);
+    for (const auto& attr : attributes_) {
+        cp->addAttribute(attr.first, attr.second);
+    }
+    for (unsigned int i = 0; i < nodes_.size(); ++i) {
+        cp->insertNode(nodes_[i]->clone());
+    }
+    return cp;
+}
+
+std::vector<std::unique_ptr<Node> > HtmlElement::filterNodes(NodeType type) const {
+    std::vector<std::unique_ptr<Node> > ret;
+    for (const std::unique_ptr<Node>& node : nodes_) {
         if (node->getType() == type) {
-            ret.push_back(node);
+            ret.push_back(node->clone());
         }
     }
     return ret;

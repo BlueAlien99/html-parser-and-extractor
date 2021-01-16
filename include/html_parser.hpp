@@ -12,9 +12,9 @@
 class HtmlParser {
 public:
     HtmlParser(AbstractSource& source);
-    std::shared_ptr<HtmlElement> parse();
-    std::shared_ptr<HtmlElement> parseSafe(AbstractSource& source);
-    std::vector<std::shared_ptr<HtmlElement> > getOpenNodes();
+    std::unique_ptr<Node> parse();
+    std::unique_ptr<Node> parseSafe(AbstractSource& source);
+    std::size_t getOpenNodesSize() const;
 
 private:
     void parseNormalContent();
@@ -25,16 +25,18 @@ private:
     void buildComment();
     void buildStartTag();
     void buildEndTag();
-    void buildAttributes(std::shared_ptr<HtmlElement> elem);
+
+    std::unique_ptr<HtmlElement> buildAttributes(std::unique_ptr<HtmlElement> elem);
+
     std::string buildAttributeNameOrUnquoted(bool is_name);
     std::string buildAttributeValueQuoted(TokenType quote);
     std::string buildCharacterReference();
 
     void ignoreUntil(TokenType tokenType);
+    void closeNode();
 
     std::unique_ptr<HtmlLexer> lexer_;
-    std::shared_ptr<HtmlElement> dom_;
-    std::vector<std::shared_ptr<HtmlElement> > open_nodes_;
+    std::vector<std::unique_ptr<HtmlElement> > open_nodes_;
 };
 
 #endif

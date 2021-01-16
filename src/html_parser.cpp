@@ -9,11 +9,10 @@
 
 HtmlParser::HtmlParser(AbstractSource& source) {
     lexer_ = std::make_unique<HtmlLexer>(source);
-    dom_ = std::make_shared<HtmlElement>("_dom_");
-    open_nodes_.push_back(dom_);
+    open_nodes_.push_back(std::make_unique<HtmlElement>("_dom_"));
 }
 
-std::shared_ptr<HtmlElement> HtmlParser::parse() {
+std::unique_ptr<Node> HtmlParser::parse() {
     lexer_->buildNextTokenNoWs();
     while (lexer_->getToken().getType() != TokenType::END_OF_FILE) {
         Token token = lexer_->getToken();
@@ -40,10 +39,15 @@ std::shared_ptr<HtmlElement> HtmlParser::parse() {
                 parseNormalContent();
         }
     }
-    return dom_;
+
+    for (int i = open_nodes_.size() - 1; i > 0; --i) {
+        open_nodes_[i - 1]->insertNode(std::move(open_nodes_[i]));
+    }
+
+    return open_nodes_.front()->clone();
 }
 
-std::shared_ptr<HtmlElement> HtmlParser::parseSafe(AbstractSource& source) {
+std::unique_ptr<Node> HtmlParser::parseSafe(AbstractSource& source) {
     try {
         return parse();
     } catch (UnexpectedToken& err) {
@@ -62,7 +66,7 @@ std::shared_ptr<HtmlElement> HtmlParser::parseSafe(AbstractSource& source) {
     }
 }
 
-std::vector<std::shared_ptr<HtmlElement> > HtmlParser::getOpenNodes() { return open_nodes_; }
+std::size_t HtmlParser::getOpenNodesSize() const { return open_nodes_.size(); }
 
 void HtmlParser::parseNormalContent() {
     Token token = lexer_->getToken();
@@ -86,8 +90,8 @@ void HtmlParser::parseNormalContent() {
             token = lexer_->buildNextToken();
         }
     }
-    auto text = std::make_shared<TextContent>(content);
-    open_nodes_.back()->insertNode(text);
+    auto text = std::make_unique<TextContent>(content);
+    open_nodes_.back()->insertNode(std::move(text));
 }
 
 void HtmlParser::parseReplaceableContent() {
@@ -103,16 +107,16 @@ void HtmlParser::parseReplaceableContent() {
                 temp += token.getContent();
                 token = lexer_->buildNextToken();
                 if (token.getType() == TokenType::SPACE || token.getType() == TokenType::SLASH) {
-                    auto text = std::make_shared<TextContent>(content);
-                    open_nodes_.back()->insertNode(text);
-                    open_nodes_.pop_back();
+                    auto text = std::make_unique<TextContent>(content);
+                    open_nodes_.back()->insertNode(std::move(text));
+                    closeNode();
                     ignoreUntil(TokenType::END_TAG);
                     return;
                 } else if (token.getType() == TokenType::END_TAG ||
                            token.getType() == TokenType::END_VOID_TAG) {
-                    auto text = std::make_shared<TextContent>(content);
-                    open_nodes_.back()->insertNode(text);
-                    open_nodes_.pop_back();
+                    auto text = std::make_unique<TextContent>(content);
+                    open_nodes_.back()->insertNode(std::move(text));
+                    closeNode();
                     lexer_->buildNextToken();
                     return;
                 }
@@ -140,12 +144,12 @@ void HtmlParser::parseNonReplaceableContent() {
             token.getContent() == open_nodes_.back()->getName()) {
             token = lexer_->buildNextToken();
             if (token.getType() == TokenType::SPACE || token.getType() == TokenType::SLASH) {
-                open_nodes_.pop_back();
+                closeNode();
                 ignoreUntil(TokenType::END_TAG);
                 return;
             } else if (token.getType() == TokenType::END_TAG ||
                        token.getType() == TokenType::END_VOID_TAG) {
-                open_nodes_.pop_back();
+                closeNode();
                 lexer_->buildNextToken();
                 return;
             }
@@ -166,21 +170,23 @@ void HtmlParser::buildComment() {
 void HtmlParser::buildStartTag() {
     Token token = lexer_->buildNextTokenNoWs();
     if (token.getType() == TokenType::STRING) {
-        std::shared_ptr<HtmlElement> elem = std::make_shared<HtmlElement>(token.getContent());
-        open_nodes_.back()->insertNode(elem);
+        std::unique_ptr<HtmlElement> elem = std::make_unique<HtmlElement>(token.getContent());
         lexer_->buildNextTokenNoWs();
 
-        buildAttributes(elem);
+        elem = buildAttributes(std::move(elem));
 
         token = lexer_->getToken();
         if (token.getType() == TokenType::END_TAG) {
             if (!utils::isVoidElement(elem->getName())) {
-                open_nodes_.push_back(elem);
+                open_nodes_.push_back(std::move(elem));
+            } else {
+                open_nodes_.back()->insertNode(std::move(elem));
             }
             lexer_->buildNextToken();
             return;
         }
         if (token.getType() == TokenType::END_VOID_TAG) {
+            open_nodes_.back()->insertNode(std::move(elem));
             lexer_->buildNextToken();
             return;
         }
@@ -195,8 +201,9 @@ void HtmlParser::buildEndTag() {
         std::string expected = open_nodes_.back()->getName();
         std::string misnested = open_nodes_[open_nodes_.size() - 2]->getName();
         if (expected == name) {
-            open_nodes_.pop_back();
+            closeNode();
         } else if (misnested == name) {
+            (*(open_nodes_.end() - 3))->insertNode(std::move(*(open_nodes_.end() - 2)));
             open_nodes_.erase(open_nodes_.begin() + open_nodes_.size() - 2);
         } else {
             throw MismatchedTags(token, expected);
@@ -210,7 +217,7 @@ void HtmlParser::buildEndTag() {
     throw UnexpectedToken(token);
 }
 
-void HtmlParser::buildAttributes(std::shared_ptr<HtmlElement> elem) {
+std::unique_ptr<HtmlElement> HtmlParser::buildAttributes(std::unique_ptr<HtmlElement> elem) {
     Token token = lexer_->getToken();
     while (token.getType() != TokenType::END_TAG && token.getType() != TokenType::END_VOID_TAG &&
            token.getType() != TokenType::END_OF_FILE) {
@@ -245,6 +252,7 @@ void HtmlParser::buildAttributes(std::shared_ptr<HtmlElement> elem) {
         }
         elem->addAttribute(name, value);
     }
+    return elem;
 }
 
 std::string HtmlParser::buildAttributeNameOrUnquoted(bool is_name) {
@@ -282,6 +290,11 @@ void HtmlParser::ignoreUntil(TokenType tokenType) {
         lexer_->buildNextTokenNoWs();
     }
     lexer_->buildNextToken();
+}
+
+void HtmlParser::closeNode() {
+    (*(open_nodes_.end() - 2))->insertNode(std::move(open_nodes_.back()));
+    open_nodes_.pop_back();
 }
 
 std::string HtmlParser::buildCharacterReference() {

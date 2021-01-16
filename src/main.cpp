@@ -31,7 +31,7 @@ int main() {
     // SourceFromFile src("./data/random_file.html");
     SourceFromUrl src("https://www.onet.pl/");
     HtmlParser parser(src);
-    std::shared_ptr<HtmlElement> dom = parser.parseSafe(src);
+    std::unique_ptr<Node> dom = parser.parseSafe(src);
     if (dom != nullptr) {
         std::cout << std::endl << dom->getAllText() << std::endl;
     }
@@ -43,7 +43,7 @@ int main() {
 
     SourceFromFile srcc("./data/random_conf.txt");
     ConfParser parserc(srcc);
-    std::shared_ptr<ConfObject> conf = parserc.parseSafe(src);
+    std::unique_ptr<ConfObject> conf = parserc.parseSafe(src);
     if (conf != nullptr) {
         std::cout << conf->getHumanReadableDescription() << std::endl << std::endl;
     }
