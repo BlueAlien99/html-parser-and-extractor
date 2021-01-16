@@ -7,18 +7,17 @@
 
 ConfParser::ConfParser(AbstractSource& source) {
     lexer_ = std::make_unique<ConfLexer>(source);
-    conf_ = std::make_shared<ConfObject>();
-    current_conf_ = conf_;
+    confs_.push_back(std::make_unique<ConfObject>());
 }
 
-std::shared_ptr<ConfObject> ConfParser::parse() {
+std::unique_ptr<ConfObject> ConfParser::parse() {
     lexer_->buildNextTokenNoWs();
     while (lexer_->getToken().getType() != TokenType::END_OF_FILE) {
         Token token = lexer_->getToken();
 
         switch (token.getType()) {
             case TokenType::STRING:
-                current_conf_->setTag(token.getContent());
+                confs_.back()->setTag(token.getContent());
                 lexer_->buildNextToken();
                 break;
             case TokenType::ID:
@@ -32,17 +31,22 @@ std::shared_ptr<ConfObject> ConfParser::parse() {
                 buildRange();
                 break;
             case TokenType::SPACE:
-                current_conf_ = current_conf_->createNextConf();
+                confs_.push_back(std::make_unique<ConfObject>());
                 lexer_->buildNextTokenNoWs();
                 break;
             default:
                 throw UnexpectedToken(token);
         }
     }
-    return conf_;
+
+    for (int i = confs_.size() - 1; i > 0; --i) {
+        confs_[i - 1]->setNextConf(std::move(confs_[i]));
+    }
+
+    return std::make_unique<ConfObject>(*confs_.front());
 }
 
-std::shared_ptr<ConfObject> ConfParser::parseSafe(AbstractSource& source) {
+std::unique_ptr<ConfObject> ConfParser::parseSafe(AbstractSource& source) {
     try {
         return parse();
     } catch (UnexpectedToken& err) {
@@ -66,9 +70,9 @@ void ConfParser::buildClassOrId() {
     }
     if (!name.empty()) {
         if (class_or_id == TokenType::CLASS) {
-            current_conf_->addClass(name);
+            confs_.back()->addClass(name);
         } else if (class_or_id == TokenType::ID) {
-            current_conf_->addId(name);
+            confs_.back()->addId(name);
         } else {
             throw UnexpectedToken(class_or_id);
         }
@@ -89,7 +93,7 @@ void ConfParser::buildAttribute() {
     }
     if (token.getType() == TokenType::END_ATTRIBUTE) {
         lexer_->buildNextToken();
-        current_conf_->addAttribute(name);
+        confs_.back()->addAttribute(name);
         return;
     } else if (token.getType() == TokenType::EQUALS) {
         token = lexer_->buildNextTokenNoWs();
@@ -104,7 +108,7 @@ void ConfParser::buildAttribute() {
             if (token.getType() == quote) {
                 token = lexer_->buildNextTokenNoWs();
                 if (token.getType() == TokenType::END_ATTRIBUTE) {
-                    current_conf_->addAttributeValue(name, value);
+                    confs_.back()->addAttributeValue(name, value);
                     lexer_->buildNextToken();
                     return;
                 }
@@ -128,7 +132,7 @@ void ConfParser::buildRange() {
     if (token.getType() == TokenType::END_RANGE) {
         token = lexer_->buildNextToken();
         if (!separator) {
-            current_conf_->addRange(from.second, from.second);
+            confs_.back()->addRange(from.second, from.second);
         } else {
             if (from.first == "") {
                 from.second = 0;
@@ -136,7 +140,7 @@ void ConfParser::buildRange() {
             if (to.first == "") {
                 to.second = -1;
             }
-            current_conf_->addRange(from.second, to.second);
+            confs_.back()->addRange(from.second, to.second);
         }
     } else {
         throw UnexpectedToken(token);

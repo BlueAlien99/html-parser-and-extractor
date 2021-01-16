@@ -12,6 +12,7 @@ public:
     using VecPairInt = std::vector<std::pair<int, int> >;
 
     ConfObject(std::string tag = "") : tag_(tag), next_(nullptr) {}
+    ConfObject(const ConfObject& confObject);
 
     void setTag(std::string tag) { tag_ = tag; }
     void addClass(std::string class_name) { classes_.push_back(class_name); }
@@ -29,8 +30,8 @@ public:
     VecPairStr getAttributeValues() const { return attribute_values_; }
     VecPairInt getRanges() const { return ranges_; }
 
-    std::shared_ptr<ConfObject> createNextConf();
-    std::shared_ptr<ConfObject> getNextConf() const;
+    void setNextConf(std::unique_ptr<ConfObject> next);
+    std::unique_ptr<ConfObject> getNextConf() const;
 
     std::string getHumanReadableDescription() const;
     bool isValid() const;
@@ -43,7 +44,7 @@ private:
     VecPairStr attribute_values_;
     VecPairInt ranges_;
 
-    std::shared_ptr<ConfObject> next_;
+    std::unique_ptr<ConfObject> next_;
 };
 
 #endif

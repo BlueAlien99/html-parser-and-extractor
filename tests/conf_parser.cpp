@@ -13,7 +13,7 @@ BOOST_AUTO_TEST_SUITE(conf_parser)
 BOOST_AUTO_TEST_CASE(basic) {
     SourceFromString src("span.hl.long#unique(5)");
     ConfParser parser(src);
-    std::shared_ptr<ConfObject> config = parser.parseSafe(src);
+    std::unique_ptr<ConfObject> config = parser.parseSafe(src);
     BOOST_REQUIRE(config != nullptr);
     BOOST_CHECK(config->getTag() == "span");
     std::vector<std::string> classes = {"hl", "long"};
@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE(basic) {
 BOOST_AUTO_TEST_CASE(ranges) {
     SourceFromString src("a(1)(5:)(:3)(-2:6)(:)(10)()");
     ConfParser parser(src);
-    std::shared_ptr<ConfObject> config = parser.parseSafe(src);
+    std::unique_ptr<ConfObject> config = parser.parseSafe(src);
     BOOST_REQUIRE(config != nullptr);
     ConfObject::VecPairInt ranges = {{1, 1}, {5, -1}, {0, 3}, {-2, 6}, {0, -1}, {10, 10}, {0, 0}};
     BOOST_CHECK(config->getRanges() == ranges);
@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(ranges) {
 BOOST_AUTO_TEST_CASE(nesting) {
     SourceFromString src("div.gr [data] (7:9).xyz#foo#bar a[href='google.com']");
     ConfParser parser(src);
-    std::shared_ptr<ConfObject> config = parser.parseSafe(src);
+    std::unique_ptr<ConfObject> config = parser.parseSafe(src);
     BOOST_REQUIRE(config != nullptr);
     BOOST_CHECK(config->getTag() == "div");
     std::vector<std::string> classes = {"gr"};
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(attributes) {
         "[id = \"div>' x'!--\"][class='--> \"/html>'][__--__] "
         "[no_val-da<sh][unq='__--__'][tag=\"li/>'\"]");
     ConfParser parser(src);
-    std::shared_ptr<ConfObject> config = parser.parseSafe(src);
+    std::unique_ptr<ConfObject> config = parser.parseSafe(src);
     BOOST_REQUIRE(config != nullptr);
     BOOST_CHECK(config->getTag() == "");
     std::vector<std::string> attr = {"__--__"};
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(attributes) {
 BOOST_AUTO_TEST_CASE(reorder) {
     SourceFromString src("[action]button div(6)img");
     ConfParser parser(src);
-    std::shared_ptr<ConfObject> config = parser.parseSafe(src);
+    std::unique_ptr<ConfObject> config = parser.parseSafe(src);
     BOOST_REQUIRE(config != nullptr);
     BOOST_CHECK(config->getTag() == "button");
     std::vector<std::string> attr = {"action"};
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(reorder) {
 BOOST_AUTO_TEST_CASE(non_standard_data) {
     SourceFromString src(".--__--#-_-_.____#__id__()img");
     ConfParser parser(src);
-    std::shared_ptr<ConfObject> config = parser.parseSafe(src);
+    std::unique_ptr<ConfObject> config = parser.parseSafe(src);
     BOOST_REQUIRE(config != nullptr);
     BOOST_CHECK(config->getTag() == "img");
     std::vector<std::string> classes = {"--__--", "____"};

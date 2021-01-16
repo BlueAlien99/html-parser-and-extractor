@@ -1,13 +1,20 @@
 #include "conf_object.hpp"
 
-std::shared_ptr<ConfObject> ConfObject::createNextConf() {
-    next_ = std::make_shared<ConfObject>();
-    return next_;
+ConfObject::ConfObject(const ConfObject& confObject) {
+    tag_ = confObject.tag_;
+    classes_ = confObject.classes_;
+    ids_ = confObject.ids_;
+    attributes_ = confObject.attributes_;
+    attribute_values_ = confObject.attribute_values_;
+    ranges_ = confObject.ranges_;
+    next_ = std::make_unique<ConfObject>(*confObject.next_);
 }
 
-std::shared_ptr<ConfObject> ConfObject::getNextConf() const {
+void ConfObject::setNextConf(std::unique_ptr<ConfObject> next) { next_ = std::move(next); }
+
+std::unique_ptr<ConfObject> ConfObject::getNextConf() const {
     if (next_ != nullptr && next_->isValid()) {
-        return next_;
+        return std::make_unique<ConfObject>(*next_);
     }
     return nullptr;
 }

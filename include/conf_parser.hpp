@@ -12,8 +12,8 @@
 class ConfParser {
 public:
     ConfParser(AbstractSource& source);
-    std::shared_ptr<ConfObject> parse();
-    std::shared_ptr<ConfObject> parseSafe(AbstractSource& source);
+    std::unique_ptr<ConfObject> parse();
+    std::unique_ptr<ConfObject> parseSafe(AbstractSource& source);
 
 private:
     void buildClassOrId();
@@ -23,8 +23,7 @@ private:
     std::pair<std::string, int> buildRangeBoundary();
 
     std::unique_ptr<ConfLexer> lexer_;
-    std::shared_ptr<ConfObject> conf_;
-    std::shared_ptr<ConfObject> current_conf_;
+    std::vector<std::unique_ptr<ConfObject> > confs_;
 };
 
 #endif
