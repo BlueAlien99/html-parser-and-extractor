@@ -35,29 +35,20 @@ add_library(project-lib
 target_link_libraries(project-lib ${CURL_LIBRARIES})
 
 add_executable(run src/main.cpp)
-add_executable(lexer_html tests/lexer_html.cpp)
-add_executable(lexer_conf tests/lexer_conf.cpp)
-add_executable(test_sources tests/test_sources.cpp)
-add_executable(parser_html tests/parser_html.cpp)
-add_executable(parser_conf tests/parser_conf.cpp)
+add_executable(test tests/main.cpp
+    tests/sources.cpp
+    tests/lexer_html.cpp
+    tests/lexer_conf.cpp
+    tests/html_parser.cpp
+    tests/conf_parser.cpp)
 
 target_link_libraries(run project-lib)
-target_link_libraries(lexer_html project-lib)
-target_link_libraries(lexer_conf project-lib)
-target_link_libraries(test_sources project-lib)
-target_link_libraries(parser_html project-lib ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-target_link_libraries(parser_conf project-lib ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test project-lib ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
 set(CMAKE_MODULE_PATH ./CMakeModules)
 if(CMAKE_COMPILER_IS_GNUCXX)
     include(CodeCoverage)
     setup_target_for_coverage_gcovr_html(
            NAME coverage
-           EXECUTABLE ./bin/test_sources)
-    setup_target_for_coverage_gcovr_html(
-           NAME coverage_conf
-           EXECUTABLE ./bin/lexer_conf)
-    setup_target_for_coverage_gcovr_html(
-           NAME coverage_html
-           EXECUTABLE ./bin/lexer_html)
+           EXECUTABLE ./bin/test)
 endif()

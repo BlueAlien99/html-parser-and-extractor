@@ -1,12 +1,13 @@
-#include <cassert>
-#include <iostream>
+#include <boost/test/unit_test.hpp>
 #include <vector>
 
 #include "lexer.hpp"
 #include "sources.hpp"
 #include "token.hpp"
 
-int main() {
+BOOST_AUTO_TEST_SUITE(lexer_html)
+
+BOOST_AUTO_TEST_CASE(lexer_html) {
     using TT = TokenType;
 
     std::vector expected = {
@@ -37,32 +38,31 @@ int main() {
     Token token = lexer.buildNextToken();
     while (token.getType() != TokenType::END_OF_FILE) {
         actual.push_back(token);
-        std::cout << token.getContent();
+        // std::cout << token.getContent();
         lexer.buildNextToken();
         token = lexer.getToken();
     }
 
     if (expected.size() != actual.size()) {
-        std::cout << "Expected has size of " << expected.size() << " but actual is "
-                  << actual.size() << "!\n";
-        return -1;
+        std::string msg = "Expected has size of " + std::to_string(expected.size()) +
+                          " but actual is " + std::to_string(actual.size()) + "!\n";
+        BOOST_FAIL(msg);
     }
 
     for (unsigned int i = 0; i < expected.size(); ++i) {
         if (expected[i] == actual[i].getType()) {
-            // std::cout<<(int)expected[i]<<" ";
             continue;
         } else {
             Position pos = actual[i].getPosition();
-            std::cout << "Error at position " << pos.line << ":" << pos.column << " -> " << src.getTextAtPosition(pos)
-                      << "\n";
-            std::cout << "Mismatch at " << i + 1 << " token, actual is " << (int)actual[i].getType()
-                      << ", expected " << (int)expected[i] << "!\n";
-            return -1;
+            std::string msg = "Error at position " + std::to_string(pos.line) + ":" +
+                              std::to_string(pos.column) + " -> " + src.getTextAtPosition(pos) +
+                              "\n";
+            msg += "Mismatch at " + std::to_string(i + 1) + " token, actual is " +
+                   std::to_string((int)actual[i].getType()) + ", expected " +
+                   std::to_string((int)expected[i]) + "!\n";
+            BOOST_FAIL(msg);
         }
     }
-
-    std::cout << "\nLexer works as expected!\n";
-
-    return 0;
 }
+
+BOOST_AUTO_TEST_SUITE_END()

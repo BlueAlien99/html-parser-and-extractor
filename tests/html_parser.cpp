@@ -1,12 +1,14 @@
-#include "exceptions.hpp"
 #include "html_parser.hpp"
+
+#include <boost/test/unit_test.hpp>
+
+#include "exceptions.hpp"
 #include "lexer.hpp"
 #include "node.hpp"
 #include "sources.hpp"
 #include "token.hpp"
 
-#define BOOST_TEST_MODULE parser_html
-#include <boost/test/unit_test.hpp>
+BOOST_AUTO_TEST_SUITE(html_parser)
 
 BOOST_AUTO_TEST_CASE(script) {
     SourceFromFile src("./data/parser_html/script");
@@ -163,3 +165,5 @@ BOOST_AUTO_TEST_CASE(random_page) {
     BOOST_CHECK(nodes[1]->getAttributeValue("data-attr2") == "no");
     BOOST_CHECK(nodes[5]->getAttributeValue("style") == "color: #fff;");
 }
+
+BOOST_AUTO_TEST_SUITE_END()

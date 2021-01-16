@@ -1,12 +1,14 @@
-#include "conf_object.hpp"
 #include "conf_parser.hpp"
+
+#include <boost/test/unit_test.hpp>
+
+#include "conf_object.hpp"
 #include "exceptions.hpp"
 #include "lexer.hpp"
 #include "sources.hpp"
 #include "token.hpp"
 
-#define BOOST_TEST_MODULE parser_conf
-#include <boost/test/unit_test.hpp>
+BOOST_AUTO_TEST_SUITE(conf_parser)
 
 BOOST_AUTO_TEST_CASE(basic) {
     SourceFromString src("span.hl.long#unique(5)");
@@ -106,3 +108,5 @@ BOOST_AUTO_TEST_CASE(non_standard_data) {
     ConfObject::VecPairInt ranges = {{0, 0}};
     BOOST_CHECK(config->getRanges() == ranges);
 }
+
+BOOST_AUTO_TEST_SUITE_END()
