@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "node_iterator.hpp"
+
 class Node {
 public:
     enum class NodeType { HTML_ELEMENT, TEXT_CONTENT };
@@ -13,6 +15,7 @@ public:
     virtual ~Node() = default;
 
     NodeType getType() { return type_; }
+    unsigned int getId() { return id_; }
 
     virtual void addAttribute(const std::string&, const std::string&) {}
     virtual void insertNode(std::unique_ptr<Node>) {}
@@ -31,8 +34,13 @@ public:
 
     virtual std::unique_ptr<Node> clone() const = 0;
 
+    virtual NodeIterator begin() const { return NodeIterator(nullptr); }
+    virtual NodeIterator end() const { return NodeIterator(nullptr); }
+
 protected:
-    Node(NodeType type) : type_(type) {}
+    Node(NodeType type, unsigned int id) : id_(id), type_(type) {}
+
+    unsigned int id_;
 
 private:
     NodeType type_;
@@ -40,7 +48,8 @@ private:
 
 class HtmlElement : public Node {
 public:
-    HtmlElement(std::string name) : Node(NodeType::HTML_ELEMENT), name_(std::move(name)) {}
+    HtmlElement(std::string name, unsigned int id)
+        : Node(NodeType::HTML_ELEMENT, id), name_(std::move(name)) {}
 
     void addAttribute(const std::string& name, const std::string& value) override;
     void insertNode(std::unique_ptr<Node> node) override;
@@ -59,6 +68,9 @@ public:
 
     std::unique_ptr<Node> clone() const override;
 
+    NodeIterator begin() const override;
+    NodeIterator end() const override;
+
 private:
     std::string getText(bool all) const;
     std::vector<std::unique_ptr<Node> > filterNodes(NodeType type) const;
@@ -70,11 +82,14 @@ private:
 
 class TextContent : public Node {
 public:
-    TextContent(std::string text) : Node(NodeType::TEXT_CONTENT), text_(std::move(text)) {}
+    TextContent(std::string text, unsigned int id)
+        : Node(NodeType::TEXT_CONTENT, id), text_(std::move(text)) {}
     std::string getImmediateText() const override { return text_; }
     std::string getAllText() const override { return text_; }
 
-    std::unique_ptr<Node> clone() const override { return std::make_unique<TextContent>(text_); }
+    std::unique_ptr<Node> clone() const override {
+        return std::make_unique<TextContent>(text_, id_);
+    }
 
 private:
     std::string text_;

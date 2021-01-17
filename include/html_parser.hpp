@@ -35,8 +35,12 @@ private:
     void ignoreUntil(TokenType tokenType);
     void closeNode();
 
+    unsigned int getNextId();
+
     std::unique_ptr<HtmlLexer> lexer_;
     std::vector<std::unique_ptr<HtmlElement> > open_nodes_;
+
+    unsigned int next_id_;
 };
 
 #endif

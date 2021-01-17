@@ -46,6 +46,21 @@ std::string HtmlElement::getImmediateText() const { return getText(false); }
 
 std::string HtmlElement::getAllText() const { return getText(true); }
 
+std::unique_ptr<Node> HtmlElement::clone() const {
+    std::unique_ptr<Node> cp = std::make_unique<HtmlElement>(name_, id_);
+    for (const auto& attr : attributes_) {
+        cp->addAttribute(attr.first, attr.second);
+    }
+    for (unsigned int i = 0; i < nodes_.size(); ++i) {
+        cp->insertNode(nodes_[i]->clone());
+    }
+    return cp;
+}
+
+NodeIterator HtmlElement::begin() const { return NodeIterator(clone()); }
+
+NodeIterator HtmlElement::end() const { return NodeIterator(nullptr); }
+
 std::string HtmlElement::getText(bool all) const {
     if (name_ == "br") {
         return "\n";
@@ -65,17 +80,6 @@ std::string HtmlElement::getText(bool all) const {
         }
     }
     return text;
-}
-
-std::unique_ptr<Node> HtmlElement::clone() const {
-    std::unique_ptr<Node> cp = std::make_unique<HtmlElement>(name_);
-    for (const auto& attr : attributes_) {
-        cp->addAttribute(attr.first, attr.second);
-    }
-    for (unsigned int i = 0; i < nodes_.size(); ++i) {
-        cp->insertNode(nodes_[i]->clone());
-    }
-    return cp;
 }
 
 std::vector<std::unique_ptr<Node> > HtmlElement::filterNodes(NodeType type) const {

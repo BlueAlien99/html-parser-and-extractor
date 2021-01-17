@@ -1,0 +1,8 @@
+<div>
+    <p>some <span>highlighted</span> text</p>
+    <ul>
+        <li>one</li>
+        <li>two</li>
+        <li><b>three</b></li>
+    </ul>
+</div>

@@ -30,7 +30,9 @@ add_library(project-lib
     src/conf_parser.cpp
     src/node.cpp
     src/conf_object.cpp
-    src/utils.cpp)
+    src/utils.cpp
+    src/extractor.cpp
+    src/node_iterator.cpp)
 
 target_link_libraries(project-lib ${CURL_LIBRARIES})
 
@@ -40,7 +42,9 @@ add_executable(test tests/main.cpp
     tests/lexer_html.cpp
     tests/lexer_conf.cpp
     tests/html_parser.cpp
-    tests/conf_parser.cpp)
+    tests/conf_parser.cpp
+    tests/extractor.cpp
+    tests/node_iterator.cpp)
 
 target_link_libraries(run project-lib)
 target_link_libraries(test project-lib ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
