@@ -24,6 +24,10 @@ int main() {
     std::cout << std::endl;
     std::cout << dom->getAllText() << std::endl;
 
+    if (conf == "") {
+        return 0;
+    }
+
     SourceFromString conf_src(conf);
     auto extracted = Extractor::extract(dom->clone(), conf_src, true);
     if (extracted == nullptr) {
