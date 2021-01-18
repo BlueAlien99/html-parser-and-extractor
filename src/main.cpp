@@ -1,51 +1,41 @@
 #include <iostream>
 
 #include "conf_parser.hpp"
-#include "exceptions.hpp"
+#include "extractor.hpp"
 #include "html_parser.hpp"
-#include "lexer.hpp"
 #include "node.hpp"
 #include "sources.hpp"
-#include "token.hpp"
 
 int main() {
-    // SourceFromString src("123456789 xd");
-    // while(char c = src.getNextChar()){
-    //     std::cout<<c;
-    // }
-    // std::cout<<std::endl;
+    std::string url_start = "https://www.";
+    std::string url, conf;
+    std::cout << "URL: " << url_start;
+    std::cin >> url;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cout << "Conf: ";
+    std::getline(std::cin, conf);
 
-    // SourceFromFile src2("./data/random_file.html");
-    // while(char c = src2.getNextChar()){
-    //     std::cout<<c;
-    // }
-    // std::cout<<std::endl;
-
-    // std::string url = "https://www.onet.pl/";
-    // SourceFromUrl src3(url);
-    // while(char c = src3.advance()){
-    //     std::cout<<c;
-    // }
-    // std::cout<<std::endl;
-
-    // SourceFromFile src("./data/random_file.html");
-    SourceFromUrl src("https://www.onet.pl/");
+    SourceFromUrl src(url_start + url);
     HtmlParser parser(src);
     std::unique_ptr<Node> dom = parser.parseSafe(src);
-    if (dom != nullptr) {
-        std::cout << std::endl << dom->getAllText() << std::endl;
+    if (dom == nullptr) {
+        return 1;
+    }
+    std::cout << std::endl;
+    std::cout << dom->getAllText() << std::endl;
+
+    SourceFromString conf_src(conf);
+    auto extracted = Extractor::extract(dom->clone(), conf_src, true);
+    if (extracted == nullptr) {
+        return 2;
     }
 
-    // while(char c = src2.getNextChar()){
-    //     std::cout<<c;
-    // }
-    // std::cout<<std::endl;
+    std::cout << std::endl;
+    std::cout << ">>> Extracted content:" << std::endl;
 
-    SourceFromFile srcc("./data/random_conf.txt");
-    ConfParser parserc(srcc);
-    std::unique_ptr<ConfObject> conf = parserc.parseSafe(src);
-    if (conf != nullptr) {
-        std::cout << conf->getHumanReadableDescription() << std::endl << std::endl;
+    auto nodes = extracted->getHtmlNodes();
+    for (unsigned int i = 0; i < nodes.size(); ++i) {
+        std::cout << ">>> " << nodes[i]->getAllText() << std::endl;
     }
 
     return 0;
