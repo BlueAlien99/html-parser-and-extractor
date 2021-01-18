@@ -1,0 +1,15 @@
+<div>
+    <p><b>some</b> <span>highlighted</span> text</p>
+    <div>
+        <ul>
+            <li class="lorem ipsum"><p>one</p></li>
+            <li class=" lorem  and ipsum "><p>two</p></li>
+            <li class="lorem"><p><b>three</b></p></li>
+        </ul>
+        <ul>
+            <li><p class="ipsum">four</p></li>
+            <li><p class="">five</p></li>
+            <li><p class=""><b>six</b></p></li>
+        </ul>
+    </div>
+</div>
