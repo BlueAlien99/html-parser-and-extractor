@@ -50,10 +50,20 @@ std::unique_ptr<Node> Extractor::extract(std::unique_ptr<Node> node, AbstractSou
                                      !find(ids, node->getAttributeValue("id")))) {
                     continue;
                 }
+                if (!findAttributes(node->clone(), attrs, attr_vals)) {
+                    continue;
+                }
 
-                // attr value
-
-                // attr exists
+                bool bad_value = false;
+                for (const auto& attr : attr_vals) {
+                    if (node->getAttributeValue(attr.first) != attr.second) {
+                        bad_value = true;
+                        break;
+                    }
+                }
+                if (bad_value) {
+                    continue;
+                }
 
                 filter->insertNode(std::move(node));
             }
@@ -82,6 +92,21 @@ bool Extractor::find(const std::vector<std::string>& to_find, std::string to_spl
         return true;
     }
     return false;
+}
+
+bool Extractor::findAttributes(std::unique_ptr<Node> node, const ConfObject::VecStr& attrs,
+                               const ConfObject::VecPairStr& attr_vals) {
+    for (const std::string& attr : attrs) {
+        if (!node->doesAttributeExist(attr)) {
+            return false;
+        }
+    }
+    for (const auto& attr : attr_vals) {
+        if (!node->doesAttributeExist(attr.first)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 std::unique_ptr<HtmlElement> Extractor::filterDuplicates(std::unique_ptr<HtmlElement> filter) {

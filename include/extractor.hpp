@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "conf_object.hpp"
 #include "node.hpp"
 #include "sources.hpp"
 
@@ -13,6 +14,8 @@ public:
 
 private:
     static bool find(const std::vector<std::string>& to_find, std::string to_split);
+    static bool findAttributes(std::unique_ptr<Node> node, const ConfObject::VecStr& attrs,
+                               const ConfObject::VecPairStr& attr_vals);
     static std::unique_ptr<HtmlElement> filterDuplicates(std::unique_ptr<HtmlElement> filter);
 };
 
