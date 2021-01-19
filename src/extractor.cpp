@@ -68,9 +68,8 @@ std::unique_ptr<Node> Extractor::extract(std::unique_ptr<Node> node, AbstractSou
                 filter->insertNode(std::move(node));
             }
         }
-        // Ranges
-
         filter = filterDuplicates(std::move(filter));
+        filter = filterRanges(std::move(filter), ranges);
         conf = conf->getNextConf();
     }
     return filter;
@@ -121,4 +120,27 @@ std::unique_ptr<HtmlElement> Extractor::filterDuplicates(std::unique_ptr<HtmlEle
         }
     }
     return filter;
+}
+
+std::unique_ptr<HtmlElement> Extractor::filterRanges(std::unique_ptr<HtmlElement> filter,
+                                                     const ConfObject::VecPairInt& ranges) {
+    if (ranges.empty()) {
+        return filter;
+    }
+    auto filtered_nodes = filter->getHtmlNodes();
+    filter = std::make_unique<HtmlElement>("_filter_", 0);
+    int s = filtered_nodes.size();
+    for (const std::pair<int, int>& range : ranges) {
+        int i = range.first < 0 ? range.first + s : range.first;
+        int e = range.second < 0 ? range.second + s : range.second;
+        i = std::max(i, 0);
+        e = std::min(e, s - 1);
+        while (i <= e) {
+            if (filtered_nodes[i] != nullptr) {
+                filter->insertNode(std::move(filtered_nodes[i]));
+            }
+            ++i;
+        }
+    }
+    return filterDuplicates(std::move(filter));
 }

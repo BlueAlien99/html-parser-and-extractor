@@ -17,6 +17,8 @@ private:
     static bool findAttributes(std::unique_ptr<Node> node, const ConfObject::VecStr& attrs,
                                const ConfObject::VecPairStr& attr_vals);
     static std::unique_ptr<HtmlElement> filterDuplicates(std::unique_ptr<HtmlElement> filter);
+    static std::unique_ptr<HtmlElement> filterRanges(std::unique_ptr<HtmlElement> filter,
+                                                     const ConfObject::VecPairInt& ranges);
 };
 
 #endif
