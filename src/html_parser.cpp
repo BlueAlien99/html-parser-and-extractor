@@ -71,11 +71,8 @@ std::size_t HtmlParser::getOpenNodesSize() const { return open_nodes_.size(); }
 void HtmlParser::parseNormalContent() {
     Token token = lexer_->getToken();
     std::string content;
-    while (token.getType() != TokenType::END_OF_FILE) {
+    while (utils::isValidNormalCharacterDataTT(token.getType())) {
         std::string temp;
-        if (!utils::isValidNormalCharacterDataTT(token.getType())) {
-            break;
-        }
         if (utils::isCharacterReferenceStart(token.getType())) {
             content += buildCharacterReference();
         }
