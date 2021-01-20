@@ -26,7 +26,7 @@ private:
     void buildStartTag();
     void buildEndTag();
 
-    std::unique_ptr<HtmlElement> buildAttributes(std::unique_ptr<HtmlElement> elem);
+    void buildAttributes();
 
     std::string buildAttributeNameOrUnquoted(bool is_name);
     std::string buildAttributeValueQuoted(TokenType quote);

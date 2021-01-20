@@ -174,21 +174,20 @@ void HtmlParser::buildStartTag() {
     Token token = lexer_->buildNextTokenNoWs();
     std::string name = buildTagName();
     auto elem = std::make_unique<HtmlElement>(name, getNextId());
+    open_nodes_.push_back(std::move(elem));
 
-    elem = buildAttributes(std::move(elem));
+    buildAttributes();
 
     token = lexer_->getToken();
     if (token.getType() == TokenType::END_TAG) {
-        if (!utils::isVoidElement(elem->getName())) {
-            open_nodes_.push_back(std::move(elem));
-        } else {
-            open_nodes_.back()->insertNode(std::move(elem));
+        if (utils::isVoidElement(name)) {
+            closeNode();
         }
         lexer_->buildNextToken();
         return;
     }
     if (token.getType() == TokenType::END_VOID_TAG) {
-        open_nodes_.back()->insertNode(std::move(elem));
+        closeNode();
         lexer_->buildNextToken();
         return;
     }
@@ -219,14 +218,14 @@ void HtmlParser::buildEndTag() {
     throw UnexpectedToken(token);
 }
 
-std::unique_ptr<HtmlElement> HtmlParser::buildAttributes(std::unique_ptr<HtmlElement> elem) {
+void HtmlParser::buildAttributes() {
     Token token = lexer_->getToken();
     while (token.getType() != TokenType::END_TAG && token.getType() != TokenType::END_VOID_TAG &&
            token.getType() != TokenType::END_OF_FILE) {
         std::string name = buildAttributeNameOrUnquoted(true);
         token = lexer_->getToken();
         if (token.getType() != TokenType::EQUALS) {
-            elem->addAttribute(name, "");
+            open_nodes_.back()->addAttribute(name, "");
             continue;
         }
         token = lexer_->buildNextTokenNoWs();
@@ -252,9 +251,8 @@ std::unique_ptr<HtmlElement> HtmlParser::buildAttributes(std::unique_ptr<HtmlEle
             token.getType() == TokenType::DOUBLE_QUOTE) {
             token = lexer_->buildNextTokenNoWs();
         }
-        elem->addAttribute(name, value);
+        open_nodes_.back()->addAttribute(name, value);
     }
-    return elem;
 }
 
 std::string HtmlParser::buildAttributeNameOrUnquoted(bool is_name) {
