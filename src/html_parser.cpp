@@ -7,12 +7,16 @@
 #include "exceptions.hpp"
 #include "utils.hpp"
 
-HtmlParser::HtmlParser(AbstractSource& source) : next_id_(0) {
+HtmlParser::HtmlParser(AbstractSource& source) : next_id_(0), parsed_(false) {
     lexer_ = std::make_unique<HtmlLexer>(source);
     open_nodes_.push_back(std::make_unique<HtmlElement>("_dom_", getNextId()));
 }
 
 std::unique_ptr<Node> HtmlParser::parse() {
+    if (parsed_) {
+        return open_nodes_.front()->clone();
+    }
+
     lexer_->buildNextTokenNoWs();
     while (lexer_->getToken().getType() != TokenType::END_OF_FILE) {
         Token token = lexer_->getToken();
@@ -44,6 +48,7 @@ std::unique_ptr<Node> HtmlParser::parse() {
         open_nodes_[i - 1]->insertNode(std::move(open_nodes_[i]));
     }
 
+    parsed_ = true;
     return open_nodes_.front()->clone();
 }
 

@@ -24,6 +24,8 @@ private:
 
     std::unique_ptr<ConfLexer> lexer_;
     std::vector<std::unique_ptr<ConfObject> > confs_;
+
+    bool parsed_;
 };
 
 #endif

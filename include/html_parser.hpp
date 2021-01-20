@@ -41,6 +41,7 @@ private:
     std::vector<std::unique_ptr<HtmlElement> > open_nodes_;
 
     unsigned int next_id_;
+    bool parsed_;
 };
 
 #endif

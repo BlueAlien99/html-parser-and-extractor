@@ -166,4 +166,30 @@ BOOST_AUTO_TEST_CASE(random_page) {
     BOOST_CHECK(nodes[5]->getAttributeValue("style") == "color: #fff;");
 }
 
+BOOST_AUTO_TEST_CASE(open_nodes) {
+    SourceFromFile src("./data/parser_html/open_nodes");
+    HtmlParser parser(src);
+    std::unique_ptr<Node> dom = parser.parseSafe(src);
+    BOOST_REQUIRE(dom != nullptr);
+    BOOST_CHECK(parser.getOpenNodesSize() == 3);
+    auto nodes = dom->getHtmlNodes();
+    BOOST_CHECK(nodes.size() == 1);
+    BOOST_CHECK(nodes[0]->getName() == "div");
+    BOOST_CHECK(dom->getAllText() == "row some text");
+}
+
+BOOST_AUTO_TEST_CASE(multiparse) {
+    SourceFromFile src("./data/random_file.html");
+    HtmlParser parser(src);
+    std::unique_ptr<Node> dom = parser.parseSafe(src);
+    std::unique_ptr<Node> dom_2 = parser.parseSafe(src);
+    BOOST_REQUIRE(dom != nullptr);
+    BOOST_REQUIRE(dom_2 != nullptr);
+    BOOST_CHECK(parser.getOpenNodesSize() == 1);
+    BOOST_CHECK(dom->getHtmlNodes().size() == 1);
+    BOOST_CHECK(dom_2->getHtmlNodes().size() == 1);
+    BOOST_CHECK(dom->getHtmlNodes()[0]->getName() == "html");
+    BOOST_CHECK(dom_2->getHtmlNodes()[0]->getName() == "html");
+}
+
 BOOST_AUTO_TEST_SUITE_END()

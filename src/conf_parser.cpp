@@ -5,12 +5,16 @@
 #include "exceptions.hpp"
 #include "utils.hpp"
 
-ConfParser::ConfParser(AbstractSource& source) {
+ConfParser::ConfParser(AbstractSource& source) : parsed_(false) {
     lexer_ = std::make_unique<ConfLexer>(source);
     confs_.push_back(std::make_unique<ConfObject>());
 }
 
 std::unique_ptr<ConfObject> ConfParser::parse() {
+    if (parsed_) {
+        return std::make_unique<ConfObject>(*confs_.front());
+    }
+
     lexer_->buildNextTokenNoWs();
     while (lexer_->getToken().getType() != TokenType::END_OF_FILE) {
         Token token = lexer_->getToken();
@@ -43,6 +47,7 @@ std::unique_ptr<ConfObject> ConfParser::parse() {
         confs_[i - 1]->setNextConf(std::move(confs_[i]));
     }
 
+    parsed_ = true;
     return std::make_unique<ConfObject>(*confs_.front());
 }
 

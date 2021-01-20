@@ -109,4 +109,15 @@ BOOST_AUTO_TEST_CASE(non_standard_data) {
     BOOST_CHECK(config->getRanges() == ranges);
 }
 
+BOOST_AUTO_TEST_CASE(multiparse) {
+    SourceFromString src("p a img");
+    ConfParser parser(src);
+    std::unique_ptr<ConfObject> config = parser.parseSafe(src);
+    std::unique_ptr<ConfObject> config_2 = parser.parseSafe(src);
+    BOOST_REQUIRE(config != nullptr);
+    BOOST_REQUIRE(config_2 != nullptr);
+    BOOST_CHECK(config->getTag() == "p");
+    BOOST_CHECK(config_2->getTag() == "p");
+}
+
 BOOST_AUTO_TEST_SUITE_END()
