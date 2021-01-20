@@ -13,8 +13,8 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic")
-#set(CMAKE_CXX_FLAGS_DEBUG "-g -fprofile-arcs -ftest-coverage -fPIC -O0")
-set(CMAKE_CXX_FLAGS_DEBUG "-g -fPIC -O0")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -fprofile-arcs -ftest-coverage -fPIC -O0")
+#set(CMAKE_CXX_FLAGS_DEBUG "-g -fPIC -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 set(CURL_LIBRARY "-lcurl -licuuc")
@@ -49,10 +49,12 @@ add_executable(test tests/main.cpp
 target_link_libraries(run project-lib)
 target_link_libraries(test project-lib ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
-set(CMAKE_MODULE_PATH ./CMakeModules)
-if(CMAKE_COMPILER_IS_GNUCXX)
-    include(CodeCoverage)
-    setup_target_for_coverage_gcovr_html(
-           NAME coverage
-           EXECUTABLE ./bin/test)
-endif()
+IF(CMAKE_BUILD_TYPE MATCHES Debug)
+    set(CMAKE_MODULE_PATH ./CMakeModules)
+    if(CMAKE_COMPILER_IS_GNUCXX)
+        include(CodeCoverage)
+        setup_target_for_coverage_gcovr_html(
+            NAME coverage
+            EXECUTABLE ./bin/test)
+    endif()
+ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)

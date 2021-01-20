@@ -2,30 +2,31 @@
 
 ## Compilation
 
-**Requires `libcurl4-openssl-dev`**
+**Requires:**
+* `libcurl4-openssl-dev`
+* `libicu-dev`
+* `Boost.Test` and `Boost.Algorithm`
+
 ```
 sudo apt install libcurl4-openssl-dev
 sudo apt install libicu-dev
-sudo apt install libunistring-dev
+sudo apt install libboost-all-dev
 ```
 
 ```
-cmake .
+mkdir bin
+cmake -DCMAKE_BUILD_TYPE=Release .
 make
 ```
 
-`./bin/run` -- to test fetching onet.pl
+`./bin/run` -- demo (fetch any webpage and extract any content)
 
-`./bin/lexer_html` -- to test html lexer
+`./bin/test` -- run tests
 
-`./bin/lexer_conf` -- to test configuration string lexer
-
-## Testing
+## Coverage
 ```
 cmake -DCMAKE_BUILD_TYPE=Debug .
 make
-make coverage_html
-make coverage_conf
 make coverage
 ```
 Then open `coverage/index.html`

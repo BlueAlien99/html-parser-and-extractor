@@ -43,7 +43,15 @@ char AbstractSource::getChar() const { return current_char_; }
 Position AbstractSource::getPosition() const { return position_; }
 
 std::string AbstractSource::getTextAtPosition(const Position &pos) {
-    int len = pos.src_pos - pos.src_line_pos;
+    const int PAST_POS = 8;
+    stream_->clear();
+    stream_->seekg(0, std::ios_base::end);
+    int max_pos = stream_->tellg();
+    int diff = max_pos - (pos.src_pos + PAST_POS);
+    int len = pos.src_pos - pos.src_line_pos + PAST_POS;
+    if (diff < 0) {
+        len += diff;
+    }
     char *buffer = new char[len + 1];
     buffer[len] = 0;
     stream_->clear();
