@@ -46,6 +46,7 @@ std::string AbstractSource::getTextAtPosition(const Position &pos) {
     int len = pos.src_pos - pos.src_line_pos;
     char *buffer = new char[len + 1];
     buffer[len] = 0;
+    stream_->clear();
     stream_->seekg(pos.src_line_pos);
     stream_->read(buffer, len);
     std::string text(buffer);

@@ -19,6 +19,9 @@ std::unique_ptr<Node> Extractor::extract(std::unique_ptr<Node> node, AbstractSou
     ConfParser conf_parser(conf_source);
     if (safe) {
         conf = conf_parser.parseSafe(conf_source);
+        if (conf == nullptr) {
+            return nullptr;
+        }
     } else {
         conf = conf_parser.parse();
     }

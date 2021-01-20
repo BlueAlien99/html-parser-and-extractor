@@ -61,7 +61,7 @@ std::unique_ptr<Node> HtmlParser::parseSafe(AbstractSource& source) {
         Position pos = err.getToken().getPosition();
         std::cout << "Error at " << pos.line << ':' << pos.column << ": "
                   << source.getTextAtPosition(pos) << std::endl;
-        std::cout << "Expected " << err.getExpected() << std::endl;
+        std::cout << "Expected tag name: " << err.getExpected() << std::endl;
         return nullptr;
     }
 }
