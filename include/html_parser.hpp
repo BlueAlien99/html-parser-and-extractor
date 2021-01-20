@@ -31,6 +31,7 @@ private:
     std::string buildAttributeNameOrUnquoted(bool is_name);
     std::string buildAttributeValueQuoted(TokenType quote);
     std::string buildCharacterReference();
+    std::string buildTagName();
 
     void ignoreUntil(TokenType tokenType);
     void closeNode();

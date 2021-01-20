@@ -66,6 +66,7 @@ std::unique_ptr<Node> HtmlParser::parseSafe(AbstractSource& source) {
         Position pos = err.getToken().getPosition();
         std::cout << "Error at " << pos.line << ':' << pos.column << ": "
                   << source.getTextAtPosition(pos) << std::endl;
+        std::cout << "Actual tag name:   " << err.getName() << std::endl;
         std::cout << "Expected tag name: " << err.getExpected() << std::endl;
         return nullptr;
     }
@@ -171,50 +172,49 @@ void HtmlParser::buildComment() {
 
 void HtmlParser::buildStartTag() {
     Token token = lexer_->buildNextTokenNoWs();
-    if (token.getType() == TokenType::STRING) {
-        auto elem = std::make_unique<HtmlElement>(token.getContent(), getNextId());
-        lexer_->buildNextTokenNoWs();
+    std::string name = buildTagName();
+    auto elem = std::make_unique<HtmlElement>(name, getNextId());
 
-        elem = buildAttributes(std::move(elem));
+    elem = buildAttributes(std::move(elem));
 
-        token = lexer_->getToken();
-        if (token.getType() == TokenType::END_TAG) {
-            if (!utils::isVoidElement(elem->getName())) {
-                open_nodes_.push_back(std::move(elem));
-            } else {
-                open_nodes_.back()->insertNode(std::move(elem));
-            }
-            lexer_->buildNextToken();
-            return;
-        }
-        if (token.getType() == TokenType::END_VOID_TAG) {
+    token = lexer_->getToken();
+    if (token.getType() == TokenType::END_TAG) {
+        if (!utils::isVoidElement(elem->getName())) {
+            open_nodes_.push_back(std::move(elem));
+        } else {
             open_nodes_.back()->insertNode(std::move(elem));
-            lexer_->buildNextToken();
-            return;
         }
+        lexer_->buildNextToken();
+        return;
+    }
+    if (token.getType() == TokenType::END_VOID_TAG) {
+        open_nodes_.back()->insertNode(std::move(elem));
+        lexer_->buildNextToken();
+        return;
     }
     throw UnexpectedToken(token);
 }
 
 void HtmlParser::buildEndTag() {
     Token token = lexer_->buildNextTokenNoWs();
-    if (token.getType() == TokenType::STRING) {
-        std::string name = token.getContent();
-        std::string expected = open_nodes_.back()->getName();
-        std::string misnested = open_nodes_[open_nodes_.size() - 2]->getName();
-        if (expected == name) {
-            closeNode();
-        } else if (misnested == name) {
-            (*(open_nodes_.end() - 3))->insertNode(std::move(*(open_nodes_.end() - 2)));
-            open_nodes_.erase(open_nodes_.begin() + open_nodes_.size() - 2);
-        } else {
-            throw MismatchedTags(token, expected);
-        }
-        token = lexer_->buildNextTokenNoWs();
-        if (token.getType() == TokenType::END_TAG) {
-            lexer_->buildNextToken();
-            return;
-        }
+    std::string name = buildTagName();
+    std::string expected = open_nodes_.back()->getName();
+    std::string misnested = expected;
+    if (open_nodes_.size() > 1) {
+        misnested = open_nodes_[open_nodes_.size() - 2]->getName();
+    }
+    token = lexer_->getToken();
+    if (expected == name) {
+        closeNode();
+    } else if (misnested == name) {
+        (*(open_nodes_.end() - 3))->insertNode(std::move(*(open_nodes_.end() - 2)));
+        open_nodes_.erase(open_nodes_.begin() + open_nodes_.size() - 2);
+    } else {
+        throw MismatchedTags(token, name, expected);
+    }
+    if (token.getType() == TokenType::END_TAG) {
+        lexer_->buildNextToken();
+        return;
     }
     throw UnexpectedToken(token);
 }
@@ -339,6 +339,22 @@ std::string HtmlParser::buildCharacterReference() {
         return ret;
     }
     return ret;
+}
+
+std::string HtmlParser::buildTagName() {
+    Token token = lexer_->getToken();
+    std::string name;
+    while (token.getType() == TokenType::STRING || token.getType() == TokenType::DASH) {
+        name += token.getContent();
+        token = lexer_->buildNextToken();
+    }
+    if (name.empty()) {
+        throw UnexpectedToken(token);
+    }
+    if (token.getType() == TokenType::SPACE) {
+        lexer_->buildNextTokenNoWs();
+    }
+    return name;
 }
 
 void HtmlParser::ignoreUntil(TokenType tokenType) {

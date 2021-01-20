@@ -16,12 +16,15 @@ private:
 
 class MismatchedTags : public std::exception {
 public:
-    MismatchedTags(Token token, std::string expected) : token_(token), expected_(expected) {}
+    MismatchedTags(Token token, std::string name, std::string expected)
+        : token_(token), name_(name), expected_(expected) {}
     Token getToken() { return token_; }
+    std::string getName() { return name_; }
     std::string getExpected() { return expected_; }
 
 private:
     Token token_;
+    std::string name_;
     std::string expected_;
 };
 

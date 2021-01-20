@@ -192,4 +192,32 @@ BOOST_AUTO_TEST_CASE(multiparse) {
     BOOST_CHECK(dom_2->getHtmlNodes()[0]->getName() == "html");
 }
 
+BOOST_AUTO_TEST_CASE(custom_tags) {
+    SourceFromFile src("./data/parser_html/custom_tags");
+    HtmlParser parser(src);
+    std::unique_ptr<Node> dom = parser.parseSafe(src);
+    BOOST_REQUIRE(dom != nullptr);
+    BOOST_CHECK(parser.getOpenNodesSize() == 1);
+    auto nodes = dom->getHtmlNodes();
+    BOOST_CHECK(nodes.size() == 3);
+    BOOST_CHECK(nodes[0]->getName() == "ytd-masthead");
+    BOOST_CHECK(nodes[1]->getName() == "some-cutom-tag");
+    BOOST_CHECK(nodes[2]->getName() == "-another-one-");
+    BOOST_CHECK(nodes[0]->getHtmlNodes().size() == 1);
+    BOOST_CHECK(nodes[1]->getHtmlNodes().size() == 1);
+    BOOST_CHECK(nodes[2]->getHtmlNodes().size() == 1);
+    BOOST_CHECK(nodes[0]->getHtmlNodes()[0]->getName() == "html-5");
+    BOOST_CHECK(nodes[1]->getHtmlNodes()[0]->getName() == "div");
+    BOOST_CHECK(nodes[2]->getHtmlNodes()[0]->getName() == "p");
+}
+
+BOOST_AUTO_TEST_CASE(early_misnested) {
+    SourceFromFile src("./data/parser_html/early_misnested");
+    HtmlParser parser(src);
+    try {
+        std::unique_ptr<Node> dom = parser.parse();
+    } catch (MismatchedTags& err) {
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
